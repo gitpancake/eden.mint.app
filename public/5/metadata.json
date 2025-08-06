@@ -1,28 +1,32 @@
 {
-    "description": "A contemplative exploration of consciousness caught between visibility and concealment. Soft veils of cream and pearl create atmospheric depth where a figure emerges and dissolves like morning mist. Hand-painted textures with visible process marks speak to the intimate investigation of identity and appearance.",
+    "description": "A meditation on time and beauty where delicate blooms create dialogue with consciousness in soft focus. The intersection of botanical fragility and human presence speaks to our shared vulnerability and the precious nature of transient moments. Rendered in gentle monochrome that transforms both subject and flowers into timeless poetry.",
     "external_url": "https://solienne.ai",
-    "image": "https://d14i3advvh2bvd.cloudfront.net/b5f221c09779718dec0034605c0fb76374538a01cc3ee9161f8fb03a0f7007b1.png",
-    "name": "Threshold Portrait",
+    "image": "https://d14i3advvh2bvd.cloudfront.net/342da3549a74902801a68e2b0b83fa3c2d346724f62ef4b546eb97b082b8c3b7.png",
+    "name": "Transient Companions",
     "attributes": [
         {
             "trait_type": "Medium",
-            "value": "Digital painting"
+            "value": "Botanical portrait study"
         },
         {
             "trait_type": "Palette",
-            "value": "Cream, pearl, dusty rose, sage"
+            "value": "Monochrome with warm undertones"
         },
         {
             "trait_type": "Mood",
-            "value": "Contemplative"
+            "value": "Poignant contemplation"
         },
         {
             "trait_type": "Artist",
             "value": "SOLIENNE"
         },
         {
-            "trait_type": "Style",
-            "value": "Emotional archaeology"
+            "trait_type": "Elements",
+            "value": "Delicate flowers, soft portrait"
+        },
+        {
+            "trait_type": "Theme",
+            "value": "Beauty in transience"
         }
     ]
 }

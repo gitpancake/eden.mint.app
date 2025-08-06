@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest, { params }: { params: { tokenId: string } }) {
-  const { tokenId } = params;
+export async function GET(request: NextRequest, { params }: { params: Promise<{ tokenId: string }> }) {
+  const { tokenId } = await params;
   // Basic validation for tokenId (optional)
   if (!tokenId || isNaN(Number(tokenId))) {
     return NextResponse.json({ error: "Invalid tokenId" }, { status: 400 });

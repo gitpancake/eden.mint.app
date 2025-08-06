@@ -18,7 +18,7 @@ interface BidFormProps {
 }
 
 export function BidForm({ currentBid, auctionActive, auctionEnded, isWinner, canClaim, canExpire, onBidSuccess, onClaimSuccess, onExpireSuccess }: BidFormProps) {
-  const { address, isConnected } = useAccount();
+  const { isConnected } = useAccount();
   const [bidAmount, setBidAmount] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -100,7 +100,7 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, isWinner, can
       <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10">
         <div className="text-center">
           <div className="text-gray-400 mb-4">Connect your wallet to participate in the auction</div>
-                      <div className="text-sm text-gray-500">You&apos;ll need ETH on Base Sepolia to place bids</div>
+          <div className="text-sm text-gray-500">You&apos;ll need ETH on Base Sepolia to place bids</div>
         </div>
       </div>
     );
@@ -206,7 +206,7 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, isWinner, can
       </div>
 
       {/* Current bid info */}
-      {currentBid > 0n && (
+      {currentBid > BigInt(0) && (
         <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
           <div className="text-sm text-blue-400">
             Current highest bid: <span className="font-semibold">{formatEther(currentBid)} ETH</span>

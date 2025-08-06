@@ -37,7 +37,6 @@ export function AuctionHistory() {
 
       try {
         // Fetch auction data for each ID (excluding current auction)
-        const currentAuctionId = allAuctionIds[allAuctionIds.length - 1];
         const historicalIds = allAuctionIds.slice(0, -1).reverse(); // Most recent first, excluding current
 
         for (const auctionId of historicalIds.slice(0, 10)) {

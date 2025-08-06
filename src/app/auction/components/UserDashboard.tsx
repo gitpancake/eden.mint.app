@@ -59,7 +59,7 @@ export function UserDashboard() {
     ];
 
     // Only show NFTs if user actually has some
-    if (nftBalance && nftBalance > 0n) {
+    if (nftBalance && nftBalance > BigInt(0)) {
       setUserNFTs(mockUserNFTs.slice(0, Number(nftBalance)));
     } else {
       setUserNFTs([]);
@@ -146,7 +146,7 @@ export function UserDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-blue-400 font-semibold">🔥 Highest Bidder</div>
-                  <div className="text-sm text-gray-300 mt-1">You're currently winning the auction!</div>
+                  <div className="text-sm text-gray-300 mt-1">You&apos;re currently winning the auction!</div>
                 </div>
                 <div className="text-right">
                   <div className="text-blue-400 font-bold">{currentAuction ? formatEther(currentAuction.highestBid) : "0"} ETH</div>

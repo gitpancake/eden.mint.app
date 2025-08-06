@@ -561,7 +561,7 @@ export const AUCTION_CONTRACT_ABI = [
 
 // Contract configuration
 export const AUCTION_CONTRACT_CONFIG = {
-  address: (process.env.NEXT_PUBLIC_AUCTION_CONTRACT_ADDRESS || "0xE000F263b1EF8E434Cd7191Abb2aF9ba6918DD50") as `0x${string}`,
+  address: process.env.NEXT_PUBLIC_AUCTION_CONTRACT_ADDRESS as `0x${string}`,
   abi: AUCTION_CONTRACT_ABI,
 } as const;
 

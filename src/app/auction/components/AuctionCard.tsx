@@ -105,7 +105,7 @@ export function AuctionCard() {
         <div className="bg-black/30 backdrop-blur-sm rounded-xl p-8 border border-white/10 text-center">
           <div className="text-6xl mb-4">🎨</div>
           <h2 className="text-2xl font-bold text-white mb-4">No Active Auction</h2>
-                      <p className="text-gray-400">There&apos;s no auction currently running. Check back soon for the next artwork!</p>
+          <p className="text-gray-400">There&apos;s no auction currently running. Check back soon for the next artwork!</p>
         </div>
       </div>
     );
@@ -113,7 +113,7 @@ export function AuctionCard() {
 
   const auction = currentAuction as Auction;
   const isWinner = address && auction.highestBidder.toLowerCase() === address.toLowerCase();
-  const auctionEnded = auctionStarted && auction.endTime > 0n && BigInt(Math.floor(Date.now() / 1000)) >= auction.endTime;
+  const auctionEnded = auctionStarted && auction.endTime > BigInt(0) && BigInt(Math.floor(Date.now() / 1000)) >= auction.endTime;
 
   const getAuctionStatus = () => {
     if (!auctionStarted) {
@@ -169,7 +169,7 @@ export function AuctionCard() {
             {/* Current Bid Info */}
             <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10">
               <h3 className="text-lg font-semibold text-white mb-4">Current Bid</h3>
-              {auction.highestBid > 0n ? (
+              {auction.highestBid > BigInt(0) ? (
                 <div>
                   <div className="text-3xl font-bold text-white mb-2">{formatEther(auction.highestBid)} ETH</div>
                   <div className="text-sm text-gray-400">
@@ -201,7 +201,7 @@ export function AuctionCard() {
             <BidForm
               currentBid={auction.highestBid}
               auctionActive={Boolean(auctionActive)}
-              auctionEnded={auctionEnded}
+              auctionEnded={Boolean(auctionEnded)}
               isWinner={Boolean(isWinner)}
               canClaim={Boolean(canClaimNFT)}
               canExpire={Boolean(canExpireAuction)}

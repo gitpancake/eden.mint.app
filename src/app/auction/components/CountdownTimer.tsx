@@ -17,7 +17,7 @@ export function CountdownTimer({ endTime, auctionStarted, className = "" }: Coun
 
   useEffect(() => {
     const updateTimer = () => {
-      if (!auctionStarted || endTime === 0n) {
+      if (!auctionStarted || endTime === BigInt(0)) {
         setTimeLeft({ minutes: 0, seconds: 0, total: 0 });
         return;
       }

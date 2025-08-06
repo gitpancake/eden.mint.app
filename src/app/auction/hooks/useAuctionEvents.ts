@@ -92,7 +92,7 @@ export function useAuctionEventsWithNotifications(addNotification?: (notificatio
   const { address } = useAccount();
 
   return useAuctionEvents({
-    onBidPlaced: ({ bidder, amount, auctionId }) => {
+    onBidPlaced: ({ bidder, amount }) => {
       if (address && bidder.toLowerCase() === address.toLowerCase()) {
         addNotification?.({
           type: "success",
@@ -110,7 +110,7 @@ export function useAuctionEventsWithNotifications(addNotification?: (notificatio
       }
     },
 
-    onBidRefunded: ({ bidder, amount, auctionId }) => {
+    onBidRefunded: ({ bidder, amount }) => {
       if (address && bidder.toLowerCase() === address.toLowerCase()) {
         addNotification?.({
           type: "warning",
@@ -121,7 +121,7 @@ export function useAuctionEventsWithNotifications(addNotification?: (notificatio
       }
     },
 
-    onAuctionSettled: ({ winner, amount, tokenId, auctionId }) => {
+    onAuctionSettled: ({ winner, amount, tokenId }) => {
       if (address && winner.toLowerCase() === address.toLowerCase()) {
         addNotification?.({
           type: "success",
@@ -139,7 +139,7 @@ export function useAuctionEventsWithNotifications(addNotification?: (notificatio
       }
     },
 
-    onAuctionStarted: ({ auctionId, tokenId, endTime }) => {
+    onAuctionStarted: ({ auctionId, tokenId }) => {
       addNotification?.({
         type: "info",
         title: "New Auction Started! 🎨",
