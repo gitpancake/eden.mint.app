@@ -32,6 +32,11 @@ export function AuctionCard() {
     functionName: "auctionStarted",
   });
 
+  const { data: firstAuctionEverStarted } = useReadContract({
+    ...AUCTION_CONTRACT_CONFIG,
+    functionName: "firstAuctionEverStarted",
+  });
+
   const { data: canClaimNFT } = useReadContract({
     ...AUCTION_CONTRACT_CONFIG,
     functionName: "canClaimNFT",
@@ -117,7 +122,12 @@ export function AuctionCard() {
 
   const getAuctionStatus = () => {
     if (!auctionStarted) {
-      return { text: "Waiting for first bid", color: "text-yellow-400", icon: "⏳" };
+      // Check if this is the very first auction ever or just a new auction in the cycle
+      if (!firstAuctionEverStarted) {
+        return { text: "Pending - Awaiting first bid to start auctions", color: "text-blue-400", icon: "🚀" };
+      } else {
+        return { text: "Pending - Awaiting first bid", color: "text-yellow-400", icon: "⏳" };
+      }
     } else if (auctionEnded) {
       if (isWinner && canClaimNFT) {
         return { text: "You won! Claim your NFT", color: "text-green-400", icon: "🏆" };
@@ -164,7 +174,12 @@ export function AuctionCard() {
           {/* Right side - Auction Details & Bidding */}
           <div className="space-y-6">
             {/* Countdown Timer */}
-            <CountdownTimer endTime={auction.endTime} auctionStarted={Boolean(auctionStarted)} className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10" />
+            <CountdownTimer 
+              endTime={auction.endTime} 
+              auctionStarted={Boolean(auctionStarted)} 
+              firstAuctionEverStarted={Boolean(firstAuctionEverStarted)}
+              className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10" 
+            />
 
             {/* Current Bid Info */}
             <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10">
@@ -202,6 +217,8 @@ export function AuctionCard() {
               currentBid={auction.highestBid}
               auctionActive={Boolean(auctionActive)}
               auctionEnded={Boolean(auctionEnded)}
+              auctionStarted={Boolean(auctionStarted)}
+              firstAuctionEverStarted={Boolean(firstAuctionEverStarted)}
               isWinner={Boolean(isWinner)}
               canClaim={Boolean(canClaimNFT)}
               canExpire={Boolean(canExpireAuction)}

@@ -5,10 +5,11 @@ import { useEffect, useState } from "react";
 interface CountdownTimerProps {
   endTime: bigint;
   auctionStarted: boolean;
+  firstAuctionEverStarted?: boolean;
   className?: string;
 }
 
-export function CountdownTimer({ endTime, auctionStarted, className = "" }: CountdownTimerProps) {
+export function CountdownTimer({ endTime, auctionStarted, firstAuctionEverStarted = false, className = "" }: CountdownTimerProps) {
   const [timeLeft, setTimeLeft] = useState<{
     minutes: number;
     seconds: number;
@@ -44,8 +45,17 @@ export function CountdownTimer({ endTime, auctionStarted, className = "" }: Coun
   if (!auctionStarted) {
     return (
       <div className={`text-center ${className}`}>
-        <div className="text-2xl font-mono text-yellow-400">⏳ Waiting for first bid</div>
-        <div className="text-sm text-gray-400 mt-1">First bid starts the 5-minute timer</div>
+        {!firstAuctionEverStarted ? (
+          <>
+            <div className="text-2xl font-mono text-blue-400">🚀 Ready to Launch</div>
+            <div className="text-sm text-gray-400 mt-1">First bid ever will start the auction system</div>
+          </>
+        ) : (
+          <>
+            <div className="text-2xl font-mono text-yellow-400">⏳ Waiting for first bid</div>
+            <div className="text-sm text-gray-400 mt-1">First bid starts the 5-minute timer</div>
+          </>
+        )}
       </div>
     );
   }

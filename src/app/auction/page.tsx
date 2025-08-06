@@ -71,18 +71,22 @@ export default function AuctionPage() {
         {/* Info Banner */}
         <div className="mt-12 bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10">
           <h3 className="text-xl font-semibold text-white mb-4">How Rolling Auctions Work</h3>
-          <div className="grid md:grid-cols-3 gap-6 text-gray-300">
+          <div className="grid md:grid-cols-4 gap-6 text-gray-300">
             <div>
-              <div className="text-purple-400 font-semibold mb-2">1. First Bid Starts Timer</div>
-              <p className="text-sm">The 5-minute auction countdown begins when the first bid is placed.</p>
+              <div className="text-purple-400 font-semibold mb-2">1. Pending State</div>
+              <p className="text-sm">Each auction waits for its first bid before the timer starts.</p>
             </div>
             <div>
-              <div className="text-purple-400 font-semibold mb-2">2. Automatic Refunds</div>
-              <p className="text-sm">Previous bidders are automatically refunded when outbid - no manual claims needed.</p>
+              <div className="text-purple-400 font-semibold mb-2">2. First Bid Starts Timer</div>
+              <p className="text-sm">The 5-minute countdown begins when the first bid is placed.</p>
             </div>
             <div>
-              <div className="text-purple-400 font-semibold mb-2">3. Claim to Continue</div>
-              <p className="text-sm">Winners claim their NFT to mint it and start the next auction immediately.</p>
+              <div className="text-purple-400 font-semibold mb-2">3. Automatic Refunds</div>
+              <p className="text-sm">Previous bidders are automatically refunded when outbid.</p>
+            </div>
+            <div>
+              <div className="text-purple-400 font-semibold mb-2">4. Claim & Continue</div>
+              <p className="text-sm">Winners claim their NFT and the next auction begins.</p>
             </div>
           </div>
         </div>

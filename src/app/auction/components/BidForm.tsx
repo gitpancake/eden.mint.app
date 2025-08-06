@@ -9,6 +9,8 @@ interface BidFormProps {
   currentBid: bigint;
   auctionActive: boolean;
   auctionEnded: boolean;
+  auctionStarted: boolean;
+  firstAuctionEverStarted: boolean;
   isWinner: boolean;
   canClaim: boolean;
   canExpire: boolean;
@@ -17,7 +19,7 @@ interface BidFormProps {
   onExpireSuccess?: () => void;
 }
 
-export function BidForm({ currentBid, auctionActive, auctionEnded, isWinner, canClaim, canExpire, onBidSuccess, onClaimSuccess, onExpireSuccess }: BidFormProps) {
+export function BidForm({ currentBid, auctionActive, auctionEnded, auctionStarted, firstAuctionEverStarted, isWinner, canClaim, canExpire, onBidSuccess, onClaimSuccess, onExpireSuccess }: BidFormProps) {
   const { isConnected } = useAccount();
   const [bidAmount, setBidAmount] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -228,20 +230,20 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, isWinner, can
         </div>
       )}
 
-      <button
-        onClick={handlePlaceBid}
-        disabled={!bidAmount || isSubmitting || isPending || isConfirming || parseFloat(bidAmount) < parseFloat(minBidFormatted)}
-        className="w-full bg-white text-black py-4 px-6 rounded-lg font-semibold text-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-      >
-        {isSubmitting || isPending || isConfirming ? (
-          <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-2"></div>
-            {isPending ? "Confirm in wallet..." : isConfirming ? "Placing bid..." : "Processing..."}
-          </div>
-        ) : (
-          "💎 Place Bid"
-        )}
-      </button>
+              <button
+          onClick={handlePlaceBid}
+          disabled={!bidAmount || isSubmitting || isPending || isConfirming || parseFloat(bidAmount) < parseFloat(minBidFormatted)}
+          className="w-full bg-white text-black py-4 px-6 rounded-lg font-semibold text-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          {isSubmitting || isPending || isConfirming ? (
+            <div className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-2"></div>
+              {isPending ? "Confirm in wallet..." : isConfirming ? "Placing bid..." : "Processing..."}
+            </div>
+          ) : (
+            !firstAuctionEverStarted && !auctionStarted ? "🚀 Launch Auctions" : "💎 Place Bid"
+          )}
+        </button>
 
       <div className="mt-4 text-xs text-gray-500 text-center">
         <div>💡 Previous bidders are automatically refunded when outbid</div>
