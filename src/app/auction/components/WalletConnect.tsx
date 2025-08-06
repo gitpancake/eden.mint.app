@@ -22,35 +22,35 @@ export function WalletConnect() {
               })}
             >
               {(() => {
-                if (!connected) {
+                                  if (!connected) {
+                    return (
+                      <button onClick={openConnectModal} type="button" className="bg-black text-white px-6 py-3 font-mono text-xs uppercase tracking-widest border border-black hover:bg-emerald-700 transition-colors">
+                        Connect Wallet
+                      </button>
+                    );
+                  }
+
+                  if (chain.unsupported) {
+                    return (
+                      <button onClick={openChainModal} type="button" className="bg-white text-black px-6 py-3 font-mono text-xs uppercase tracking-widest border border-black hover:bg-emerald-50 transition-colors">
+                        Wrong Network
+                      </button>
+                    );
+                  }
+
                   return (
-                    <button onClick={openConnectModal} type="button" className="bg-white text-black px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors">
-                      Connect Wallet
-                    </button>
+                    <div className="flex items-center gap-0 border border-black">
+                      <button onClick={openChainModal} type="button" className="bg-white text-black px-4 py-3 font-mono text-xs uppercase tracking-widest border-r border-black hover:bg-emerald-50 transition-colors">
+                        {chain.hasIcon && <div className="inline-block w-4 h-4 mr-2">{chain.iconUrl && <img alt={chain.name ?? "Chain icon"} src={chain.iconUrl} className="w-4 h-4" />}</div>}
+                        {chain.name}
+                      </button>
+
+                      <button onClick={openAccountModal} type="button" className="bg-white text-black px-6 py-3 font-mono text-xs uppercase tracking-widest hover:bg-emerald-50 transition-colors">
+                        {account.displayName}
+                        {account.displayBalance ? ` (${account.displayBalance})` : ""}
+                      </button>
+                    </div>
                   );
-                }
-
-                if (chain.unsupported) {
-                  return (
-                    <button onClick={openChainModal} type="button" className="bg-red-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-600 transition-colors">
-                      Wrong Network
-                    </button>
-                  );
-                }
-
-                return (
-                  <div className="flex items-center gap-3">
-                    <button onClick={openChainModal} type="button" className="bg-black/20 text-white px-4 py-2 rounded-lg font-medium hover:bg-black/30 transition-colors border border-white/20">
-                      {chain.hasIcon && <div className="inline-block w-4 h-4 mr-2">{chain.iconUrl && <img alt={chain.name ?? "Chain icon"} src={chain.iconUrl} className="w-4 h-4" />}</div>}
-                      {chain.name}
-                    </button>
-
-                    <button onClick={openAccountModal} type="button" className="bg-white text-black px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors">
-                      {account.displayName}
-                      {account.displayBalance ? ` (${account.displayBalance})` : ""}
-                    </button>
-                  </div>
-                );
               })()}
             </div>
           );

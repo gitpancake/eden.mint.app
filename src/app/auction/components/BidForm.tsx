@@ -97,12 +97,12 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, auctionStarte
     }
   };
 
-  if (!isConnected) {
+    if (!isConnected) {
     return (
-      <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10">
+      <div className="border border-black p-6 bg-white">
         <div className="text-center">
-          <div className="text-gray-400 mb-4">Connect your wallet to participate in the auction</div>
-                      <div className="text-sm text-gray-500">You&apos;ll need ETH to place bids</div>
+          <div className="font-mono text-sm text-black mb-4 uppercase tracking-wide">Connect your wallet to participate in the auction</div>
+          <div className="font-mono text-xs text-black">You&apos;ll need ETH to place bids</div>
         </div>
       </div>
     );
@@ -110,8 +110,8 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, auctionStarte
 
   if (!auctionActive) {
     return (
-      <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10">
-        <div className="text-center text-gray-400">No active auction</div>
+      <div className="border border-black p-6 bg-white">
+        <div className="text-center font-mono text-sm text-black uppercase tracking-wide">No active auction</div>
       </div>
     );
   }
@@ -119,17 +119,17 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, auctionStarte
   // Show claim button for winner
   if (auctionEnded && isWinner && canClaim) {
     return (
-      <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10">
+      <div className="border border-black p-6 bg-white">
         <div className="text-center mb-4">
           <div className="text-2xl mb-2">🎉</div>
-          <div className="text-xl font-bold text-green-400 mb-2">Congratulations! You won!</div>
-          <div className="text-gray-400 text-sm mb-4">Claim your NFT to mint it and start the next auction</div>
+          <div className="font-mono text-xl font-bold text-emerald-700 mb-2 uppercase tracking-widest">Congratulations! You won!</div>
+          <div className="font-mono text-xs text-black mb-4 uppercase tracking-wide">Claim your NFT to mint it and start the next auction</div>
         </div>
 
         <button
           onClick={handleClaimNFT}
           disabled={isSubmitting || isPending || isConfirming}
-          className="w-full bg-green-500 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full bg-emerald-700 text-white py-4 px-6 font-mono text-sm font-bold uppercase tracking-widest hover:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-black"
         >
           {isSubmitting || isPending || isConfirming ? (
             <div className="flex items-center justify-center">
@@ -147,20 +147,20 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, auctionStarte
   // Show expire button if auction can be expired
   if (canExpire) {
     return (
-      <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10">
+      <div className="border border-black p-6 bg-white">
         <div className="text-center mb-4">
-          <div className="text-xl font-bold text-yellow-400 mb-2">Auction Expired</div>
-          <div className="text-gray-400 text-sm mb-4">No bids were placed. Anyone can expire this auction to start the next one.</div>
+          <div className="font-mono text-xl font-bold text-black mb-2 uppercase tracking-widest">Auction Expired</div>
+          <div className="font-mono text-xs text-black mb-4 uppercase tracking-wide">No bids were placed. Anyone can expire this auction to start the next one.</div>
         </div>
 
         <button
           onClick={handleExpireAuction}
           disabled={isSubmitting || isPending || isConfirming}
-          className="w-full bg-yellow-500 text-black py-4 px-6 rounded-lg font-semibold text-lg hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full bg-black text-white py-4 px-6 font-mono text-sm font-bold uppercase tracking-widest hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-black"
         >
           {isSubmitting || isPending || isConfirming ? (
             <div className="flex items-center justify-center">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-2"></div>
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
               {isPending ? "Confirm in wallet..." : isConfirming ? "Expiring..." : "Processing..."}
             </div>
           ) : (
@@ -174,22 +174,22 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, auctionStarte
   // Show auction ended message for non-winners
   if (auctionEnded) {
     return (
-      <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10">
+      <div className="border border-black p-6 bg-white">
         <div className="text-center">
-          <div className="text-xl font-bold text-red-400 mb-2">Auction Ended</div>
-          <div className="text-gray-400 text-sm">Waiting for winner to claim NFT and start next auction</div>
+          <div className="font-mono text-xl font-bold text-black mb-2 uppercase tracking-widest">Auction Ended</div>
+          <div className="font-mono text-xs text-black uppercase tracking-wide">Waiting for winner to claim NFT and start next auction</div>
         </div>
       </div>
     );
   }
 
-  // Main bidding form
+    // Main bidding form
   return (
-    <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10">
+    <div className="border border-black p-6 bg-white">
       <div className="mb-4">
         <div className="flex justify-between items-center mb-2">
-          <label className="text-white font-medium">Your Bid (ETH)</label>
-          <div className="text-sm text-gray-400">Min: {minBidFormatted} ETH</div>
+          <label className="font-mono text-xs text-black font-bold uppercase tracking-widest">Your Bid (ETH)</label>
+          <div className="font-mono text-xs text-black">Min: {minBidFormatted} ETH</div>
         </div>
 
         <div className="relative">
@@ -200,52 +200,52 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, auctionStarte
             value={bidAmount}
             onChange={(e) => setBidAmount(e.target.value)}
             placeholder={`Minimum ${minBidFormatted} ETH`}
-            className="w-full bg-black/50 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-white/40 focus:outline-none"
+            className="w-full bg-white border border-black px-4 py-3 font-mono text-black placeholder-gray-500 focus:border-emerald-700 focus:outline-none"
             disabled={isSubmitting || isPending || isConfirming}
           />
-          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">ETH</div>
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 font-mono text-xs text-black">ETH</div>
         </div>
       </div>
 
       {/* Current bid info */}
       {currentBid > BigInt(0) && (
-        <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-          <div className="text-sm text-blue-400">
-            Current highest bid: <span className="font-semibold">{formatEther(currentBid)} ETH</span>
+        <div className="mb-4 p-3 border border-emerald-200 bg-emerald-50">
+          <div className="font-mono text-xs text-black">
+            Current highest bid: <span className="font-bold">{formatEther(currentBid)} ETH</span>
           </div>
         </div>
       )}
 
       {/* Error display */}
       {error && (
-        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-          <div className="text-sm text-red-400">{error.message || "Transaction failed"}</div>
+        <div className="mb-4 p-3 border border-black bg-white">
+          <div className="font-mono text-xs text-black">{error.message || "Transaction failed"}</div>
         </div>
       )}
 
       {/* Success message */}
       {isSuccess && (
-        <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-          <div className="text-sm text-green-400">Transaction successful! 🎉</div>
+        <div className="mb-4 p-3 border border-emerald-200 bg-emerald-50">
+          <div className="font-mono text-xs text-emerald-700">Transaction successful! 🎉</div>
         </div>
       )}
 
-              <button
-          onClick={handlePlaceBid}
-          disabled={!bidAmount || isSubmitting || isPending || isConfirming || parseFloat(bidAmount) < parseFloat(minBidFormatted)}
-          className="w-full bg-white text-black py-4 px-6 rounded-lg font-semibold text-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {isSubmitting || isPending || isConfirming ? (
-            <div className="flex items-center justify-center">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-2"></div>
-              {isPending ? "Confirm in wallet..." : isConfirming ? "Placing bid..." : "Processing..."}
-            </div>
-          ) : (
-            !firstAuctionEverStarted && !auctionStarted ? "🚀 Launch Auctions" : "💎 Place Bid"
-          )}
-        </button>
+      <button
+        onClick={handlePlaceBid}
+        disabled={!bidAmount || isSubmitting || isPending || isConfirming || parseFloat(bidAmount) < parseFloat(minBidFormatted)}
+        className="w-full bg-black text-white py-4 px-6 font-mono text-sm font-bold uppercase tracking-widest hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-black"
+      >
+        {isSubmitting || isPending || isConfirming ? (
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+            {isPending ? "Confirm in wallet..." : isConfirming ? "Placing bid..." : "Processing..."}
+          </div>
+        ) : (
+          !firstAuctionEverStarted && !auctionStarted ? "🚀 Launch Auctions" : "💎 Place Bid"
+        )}
+      </button>
 
-      <div className="mt-4 text-xs text-gray-500 text-center">
+      <div className="mt-4 font-mono text-xs text-black text-center">
         <div>💡 Previous bidders are automatically refunded when outbid</div>
         <div className="mt-1">🔒 Your funds are safe - no manual claims needed</div>
       </div>

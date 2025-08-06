@@ -47,13 +47,13 @@ export function CountdownTimer({ endTime, auctionStarted, firstAuctionEverStarte
       <div className={`text-center ${className}`}>
         {!firstAuctionEverStarted ? (
           <>
-            <div className="text-2xl font-mono text-blue-400">🚀 Ready to Launch</div>
-            <div className="text-sm text-gray-400 mt-1">First bid ever will start the auction system</div>
+            <div className="font-mono text-2xl font-bold text-emerald-700 uppercase tracking-widest">🚀 Ready to Launch</div>
+            <div className="font-mono text-xs text-black mt-1 uppercase tracking-wide">First bid ever will start the auction system</div>
           </>
         ) : (
           <>
-            <div className="text-2xl font-mono text-yellow-400">⏳ Waiting for first bid</div>
-            <div className="text-sm text-gray-400 mt-1">First bid starts the 5-minute timer</div>
+            <div className="font-mono text-2xl font-bold text-black uppercase tracking-widest">⏳ Waiting for first bid</div>
+            <div className="font-mono text-xs text-black mt-1 uppercase tracking-wide">First bid starts the 5-minute timer</div>
           </>
         )}
       </div>
@@ -63,8 +63,8 @@ export function CountdownTimer({ endTime, auctionStarted, firstAuctionEverStarte
   if (timeLeft.total <= 0) {
     return (
       <div className={`text-center ${className}`}>
-        <div className="text-2xl font-mono text-red-400">🔥 Auction Ended</div>
-        <div className="text-sm text-gray-400 mt-1">Winner can claim their NFT</div>
+        <div className="font-mono text-2xl font-bold text-black uppercase tracking-widest">🔥 Auction Ended</div>
+        <div className="font-mono text-xs text-black mt-1 uppercase tracking-wide">Winner can claim their NFT</div>
       </div>
     );
   }
@@ -74,15 +74,15 @@ export function CountdownTimer({ endTime, auctionStarted, firstAuctionEverStarte
 
   return (
     <div className={`text-center ${className}`}>
-      <div className={`text-3xl font-mono font-bold ${isCritical ? "text-red-400 animate-pulse" : isUrgent ? "text-orange-400" : "text-green-400"}`}>
+      <div className={`font-mono text-3xl font-bold uppercase tracking-widest ${isCritical ? "text-black animate-pulse" : isUrgent ? "text-black" : "text-emerald-700"}`}>
         {String(timeLeft.minutes).padStart(2, "0")}:{String(timeLeft.seconds).padStart(2, "0")}
       </div>
-      <div className="text-sm text-gray-400 mt-1">{isCritical ? "🚨 Final seconds!" : isUrgent ? "⚡ Less than a minute!" : "⏰ Time remaining"}</div>
+      <div className="font-mono text-xs text-black mt-1 uppercase tracking-wide">{isCritical ? "🚨 Final seconds!" : isUrgent ? "⚡ Less than a minute!" : "⏰ Time remaining"}</div>
 
       {/* Progress bar */}
-      <div className="w-full bg-gray-700 rounded-full h-2 mt-3">
+      <div className="w-full border border-black h-2 mt-3 bg-white">
         <div
-          className={`h-2 rounded-full transition-all duration-1000 ${isCritical ? "bg-red-400" : isUrgent ? "bg-orange-400" : "bg-green-400"}`}
+          className={`h-full transition-all duration-1000 ${isCritical ? "bg-black" : isUrgent ? "bg-black" : "bg-emerald-700"}`}
           style={{ width: `${Math.min(100, (timeLeft.total / 300) * 100)}%` }}
         />
       </div>

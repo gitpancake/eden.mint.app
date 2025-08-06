@@ -107,10 +107,10 @@ export function AuctionCard() {
   if (!currentAuction || !auctionActive) {
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="bg-black/30 backdrop-blur-sm rounded-xl p-8 border border-white/10 text-center">
-          <div className="text-6xl mb-4">🎨</div>
-          <h2 className="text-2xl font-bold text-white mb-4">No Active Auction</h2>
-          <p className="text-gray-400">There&apos;s no auction currently running. Check back soon for the next artwork!</p>
+        <div className="border border-black p-8 text-center bg-white">
+          <div className="font-mono text-6xl mb-4 text-black">🎨</div>
+          <h2 className="font-mono text-xl font-bold text-black uppercase tracking-widest mb-4">No Active Auction</h2>
+          <p className="font-mono text-sm text-black">There&apos;s no auction currently running. Check back soon for the next artwork!</p>
         </div>
       </div>
     );
@@ -145,12 +145,12 @@ export function AuctionCard() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="bg-black/30 backdrop-blur-sm rounded-xl p-8 border border-white/10">
+      <div className="border border-black p-8 bg-white">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-6 border-b border-black pb-6">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Auction #{auction.auctionId.toString()}</h1>
-            <div className={`flex items-center ${status.color} font-medium`}>
+            <h1 className="font-mono text-2xl font-bold text-black uppercase tracking-widest mb-2">Auction #{auction.auctionId.toString()}</h1>
+            <div className={`flex items-center font-mono text-xs uppercase tracking-widest ${status.color === "text-blue-400" ? "text-emerald-700" : status.color === "text-yellow-400" ? "text-black" : status.color === "text-green-400" ? "text-emerald-700" : "text-black"}`}>
               <span className="mr-2">{status.icon}</span>
               {status.text}
             </div>
@@ -158,9 +158,9 @@ export function AuctionCard() {
 
           {/* Live indicator */}
           {!auctionEnded && auctionStarted && (
-            <div className="flex items-center bg-red-500/20 border border-red-500/30 rounded-full px-4 py-2">
-              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse mr-2"></div>
-              <span className="text-red-400 text-sm font-medium">LIVE</span>
+            <div className="flex items-center border border-emerald-700 px-4 py-2 bg-emerald-50">
+              <div className="w-2 h-2 bg-emerald-700 rounded-full animate-pulse mr-2"></div>
+              <span className="text-emerald-700 font-mono text-xs font-bold uppercase tracking-widest">LIVE</span>
             </div>
           )}
         </div>
@@ -178,37 +178,37 @@ export function AuctionCard() {
               endTime={auction.endTime} 
               auctionStarted={Boolean(auctionStarted)} 
               firstAuctionEverStarted={Boolean(firstAuctionEverStarted)}
-              className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10" 
+              className="border border-black p-6 bg-white" 
             />
 
             {/* Current Bid Info */}
-            <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10">
-              <h3 className="text-lg font-semibold text-white mb-4">Current Bid</h3>
+            <div className="border border-black p-6 bg-white">
+              <h3 className="font-mono text-sm font-bold text-black uppercase tracking-widest mb-4">Current Bid</h3>
               {auction.highestBid > BigInt(0) ? (
                 <div>
-                  <div className="text-3xl font-bold text-white mb-2">{formatEther(auction.highestBid)} ETH</div>
-                  <div className="text-sm text-gray-400">
+                  <div className="font-mono text-3xl font-bold text-black mb-2">{formatEther(auction.highestBid)} ETH</div>
+                  <div className="font-mono text-xs text-black">
                     by {auction.highestBidder.slice(0, 6)}...{auction.highestBidder.slice(-4)}
-                    {isWinner && <span className="text-green-400 ml-2">(You)</span>}
+                    {isWinner && <span className="text-emerald-700 ml-2 font-bold">(You)</span>}
                   </div>
                 </div>
               ) : (
                 <div>
-                  <div className="text-2xl font-bold text-gray-400 mb-2">No bids yet</div>
-                  <div className="text-sm text-gray-500">Be the first to bid and start the auction!</div>
+                  <div className="font-mono text-2xl font-bold text-black mb-2">No bids yet</div>
+                  <div className="font-mono text-xs text-black">Be the first to bid and start the auction!</div>
                 </div>
               )}
             </div>
 
             {/* Auction Stats */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 border border-white/10">
-                <div className="text-sm text-gray-400 mb-1">Token ID</div>
-                <div className="text-xl font-bold text-white">#{auction.tokenId.toString()}</div>
+              <div className="border border-emerald-200 p-4 bg-emerald-50">
+                <div className="font-mono text-xs text-black mb-1 uppercase tracking-widest">Token ID</div>
+                <div className="font-mono text-xl font-bold text-black">#{auction.tokenId.toString()}</div>
               </div>
-              <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 border border-white/10">
-                <div className="text-sm text-gray-400 mb-1">Auction ID</div>
-                <div className="text-xl font-bold text-white">#{auction.auctionId.toString()}</div>
+              <div className="border border-emerald-200 p-4 bg-emerald-50">
+                <div className="font-mono text-xs text-black mb-1 uppercase tracking-widest">Auction ID</div>
+                <div className="font-mono text-xl font-bold text-black">#{auction.auctionId.toString()}</div>
               </div>
             </div>
 
