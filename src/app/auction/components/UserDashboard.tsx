@@ -71,10 +71,10 @@ export function UserDashboard() {
   if (!isConnected) {
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="bg-black/30 backdrop-blur-sm rounded-xl p-8 border border-white/10 text-center">
+        <div className="border border-black p-8 bg-white text-center">
           <div className="text-6xl mb-4">🔐</div>
-          <h2 className="text-2xl font-bold text-white mb-4">Connect Your Wallet</h2>
-          <p className="text-gray-400">Connect your wallet to view your NFTs, bids, and auction activity.</p>
+          <h2 className="font-mono text-2xl font-bold text-black uppercase tracking-widest mb-4">Connect Your Wallet</h2>
+          <p className="font-mono text-sm text-black">Connect your wallet to view your NFTs, bids, and auction activity.</p>
         </div>
       </div>
     );
@@ -85,36 +85,36 @@ export function UserDashboard() {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Account Overview */}
-      <div className="bg-black/30 backdrop-blur-sm rounded-xl p-8 border border-white/10">
-        <h2 className="text-2xl font-bold text-white mb-6">Account Overview</h2>
+      <div className="border border-black p-8 bg-white">
+        <h2 className="font-mono text-2xl font-bold text-black uppercase tracking-widest mb-6">Account Overview</h2>
 
         <div className="grid md:grid-cols-3 gap-6">
           {/* ETH Balance */}
-          <div className="bg-black/40 rounded-lg p-6 border border-white/10">
-            <div className="text-sm text-gray-400 mb-2">ETH Balance</div>
-            <div className="text-2xl font-bold text-white">{balance ? formatEther(balance.value) : "0.00"} ETH</div>
-            <div className="text-xs text-gray-500 mt-1">
+          <div className="border border-emerald-200 bg-emerald-50 p-6">
+            <div className="font-mono text-xs text-black mb-2 uppercase tracking-wide">ETH Balance</div>
+            <div className="font-mono text-2xl font-bold text-black">{balance ? formatEther(balance.value) : "0.00"} ETH</div>
+            <div className="font-mono text-xs text-black mt-1">
               {balance?.formatted} {balance?.symbol}
             </div>
           </div>
 
           {/* NFTs Owned */}
-          <div className="bg-black/40 rounded-lg p-6 border border-white/10">
-            <div className="text-sm text-gray-400 mb-2">NFTs Owned</div>
-            <div className="text-2xl font-bold text-white">{nftBalance?.toString() || "0"}</div>
-            <div className="text-xs text-gray-500 mt-1">Auction NFTs</div>
+          <div className="border border-emerald-200 bg-emerald-50 p-6">
+            <div className="font-mono text-xs text-black mb-2 uppercase tracking-wide">NFTs Owned</div>
+            <div className="font-mono text-2xl font-bold text-black">{nftBalance?.toString() || "0"}</div>
+            <div className="font-mono text-xs text-black mt-1">Auction NFTs</div>
           </div>
 
           {/* Current Status */}
-          <div className="bg-black/40 rounded-lg p-6 border border-white/10">
-            <div className="text-sm text-gray-400 mb-2">Current Status</div>
-            <div className="text-lg font-bold">
+          <div className="border border-emerald-200 bg-emerald-50 p-6">
+            <div className="font-mono text-xs text-black mb-2 uppercase tracking-wide">Current Status</div>
+            <div className="font-mono text-lg font-bold">
               {canClaimNFT ? (
-                <span className="text-green-400">🏆 Can Claim NFT</span>
+                <span className="text-emerald-700">🏆 Can Claim NFT</span>
               ) : isCurrentHighestBidder ? (
-                <span className="text-blue-400">🔥 Highest Bidder</span>
+                <span className="text-black">🔥 Highest Bidder</span>
               ) : (
-                <span className="text-gray-400">👀 Watching</span>
+                <span className="text-black">👀 Watching</span>
               )}
             </div>
           </div>
@@ -123,34 +123,34 @@ export function UserDashboard() {
 
       {/* Current Auction Status */}
       {(isCurrentHighestBidder || canClaimNFT) && (
-        <div className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 backdrop-blur-sm rounded-xl p-8 border border-purple-500/30">
-          <h3 className="text-xl font-bold text-white mb-4">🎯 Active Participation</h3>
+        <div className="border border-black p-8 bg-white">
+          <h3 className="font-mono text-xl font-bold text-black uppercase tracking-widest mb-4">🎯 Active Participation</h3>
 
           {canClaimNFT && (
-            <div className="bg-green-500/20 border border-green-500/30 rounded-lg p-4 mb-4">
+            <div className="border border-emerald-200 bg-emerald-50 p-4 mb-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-green-400 font-semibold">🏆 You Won!</div>
-                  <div className="text-sm text-gray-300 mt-1">You can claim your NFT from the current auction</div>
+                  <div className="font-mono text-sm font-bold text-emerald-700 uppercase tracking-wide">🏆 You Won!</div>
+                  <div className="font-mono text-xs text-black mt-1">You can claim your NFT from the current auction</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-green-400 font-bold">{currentAuction ? formatEther(currentAuction.highestBid) : "0"} ETH</div>
-                  <div className="text-xs text-gray-400">Winning bid</div>
+                  <div className="font-mono text-lg font-bold text-emerald-700">{currentAuction ? formatEther(currentAuction.highestBid) : "0"} ETH</div>
+                  <div className="font-mono text-xs text-black">Winning bid</div>
                 </div>
               </div>
             </div>
           )}
 
           {isCurrentHighestBidder && !canClaimNFT && (
-            <div className="bg-blue-500/20 border border-blue-500/30 rounded-lg p-4">
+            <div className="border border-black bg-white p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-blue-400 font-semibold">🔥 Highest Bidder</div>
-                  <div className="text-sm text-gray-300 mt-1">You&apos;re currently winning the auction!</div>
+                  <div className="font-mono text-sm font-bold text-black uppercase tracking-wide">🔥 Highest Bidder</div>
+                  <div className="font-mono text-xs text-black mt-1">You&apos;re currently winning the auction!</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-blue-400 font-bold">{currentAuction ? formatEther(currentAuction.highestBid) : "0"} ETH</div>
-                  <div className="text-xs text-gray-400">Your bid</div>
+                  <div className="font-mono text-lg font-bold text-black">{currentAuction ? formatEther(currentAuction.highestBid) : "0"} ETH</div>
+                  <div className="font-mono text-xs text-black">Your bid</div>
                 </div>
               </div>
             </div>
@@ -159,24 +159,24 @@ export function UserDashboard() {
       )}
 
       {/* Owned NFTs */}
-      <div className="bg-black/30 backdrop-blur-sm rounded-xl p-8 border border-white/10">
-        <h3 className="text-xl font-bold text-white mb-6">Your NFT Collection</h3>
+      <div className="border border-black p-8 bg-white">
+        <h3 className="font-mono text-xl font-bold text-black uppercase tracking-widest mb-6">Your NFT Collection</h3>
 
         {loading ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="animate-pulse">
-                <div className="aspect-square bg-gray-700 rounded-lg mb-4"></div>
-                <div className="h-4 bg-gray-700 rounded mb-2"></div>
-                <div className="h-3 bg-gray-700 rounded w-2/3"></div>
+                <div className="aspect-square border border-emerald-200 bg-emerald-50 mb-4"></div>
+                <div className="h-4 border border-emerald-200 bg-emerald-50 mb-2"></div>
+                <div className="h-3 border border-emerald-200 bg-emerald-50 w-2/3"></div>
               </div>
             ))}
           </div>
         ) : userNFTs.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {userNFTs.map((nft) => (
-              <div key={nft.tokenId} className="bg-black/40 rounded-lg p-4 border border-white/10 hover:border-white/20 transition-colors">
-                <div className="aspect-square bg-gray-800 rounded-lg overflow-hidden mb-4">
+              <div key={nft.tokenId} className="border border-black p-4 bg-white hover:bg-emerald-50 transition-colors">
+                <div className="aspect-square border border-black bg-white overflow-hidden mb-4">
                   <img
                     src={nft.image}
                     alt={nft.name}
@@ -184,22 +184,22 @@ export function UserDashboard() {
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.src =
-                        "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjMzc0MTUxIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNkI3MjgwIiBmb250LXNpemU9IjEyIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+Cg==";
+                        "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZmZmZmZmIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMDAwMDAwIiBmb250LXNpemU9IjEyIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+Cg==";
                     }}
                   />
                 </div>
 
                 <div>
-                  <h4 className="font-semibold text-white mb-1">{nft.name}</h4>
-                  <div className="text-sm text-gray-400 mb-2">Token #{nft.tokenId}</div>
+                  <h4 className="font-mono font-bold text-black mb-1 uppercase tracking-wide">{nft.name}</h4>
+                  <div className="font-mono text-xs text-black mb-2">Token #{nft.tokenId}</div>
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className="text-xs text-gray-500">Won for</div>
-                      <div className="text-green-400 font-semibold">{formatEther(nft.winningBid)} ETH</div>
+                      <div className="font-mono text-xs text-black uppercase tracking-wide">Won for</div>
+                      <div className="font-mono text-sm font-bold text-emerald-700">{formatEther(nft.winningBid)} ETH</div>
                     </div>
                     <div>
-                      <div className="text-xs text-gray-500">Auction</div>
-                      <div className="text-white">#{nft.auctionId}</div>
+                      <div className="font-mono text-xs text-black uppercase tracking-wide">Auction</div>
+                      <div className="font-mono text-sm font-bold text-black">#{nft.auctionId}</div>
                     </div>
                   </div>
                 </div>
@@ -209,8 +209,8 @@ export function UserDashboard() {
         ) : (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🎨</div>
-            <h4 className="text-xl font-bold text-white mb-2">No NFTs Yet</h4>
-            <p className="text-gray-400 mb-6">Win an auction to add NFTs to your collection!</p>
+            <h4 className="font-mono text-xl font-bold text-black uppercase tracking-widest mb-2">No NFTs Yet</h4>
+            <p className="font-mono text-sm text-black mb-6">Win an auction to add NFTs to your collection!</p>
             <a
               href="#"
               onClick={(e) => {
@@ -218,7 +218,7 @@ export function UserDashboard() {
                 // This would switch to the auction tab in the parent component
                 window.dispatchEvent(new CustomEvent("switchTab", { detail: "auction" }));
               }}
-              className="inline-flex items-center bg-white text-black px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+              className="inline-flex items-center bg-black text-white px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest hover:bg-emerald-700 transition-colors border border-black"
             >
               View Current Auction →
             </a>
@@ -227,45 +227,45 @@ export function UserDashboard() {
       </div>
 
       {/* Transaction History */}
-      <div className="bg-black/30 backdrop-blur-sm rounded-xl p-8 border border-white/10">
-        <h3 className="text-xl font-bold text-white mb-6">Recent Activity</h3>
+      <div className="border border-black p-8 bg-white">
+        <h3 className="font-mono text-xl font-bold text-black uppercase tracking-widest mb-6">Recent Activity</h3>
 
         <div className="space-y-4">
           {/* Mock transaction history */}
-          <div className="flex items-center justify-between py-3 border-b border-white/10">
+          <div className="flex items-center justify-between py-3 border-b border-black">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
-                <span className="text-green-400 text-sm">🏆</span>
+              <div className="w-8 h-8 border border-emerald-200 bg-emerald-50 flex items-center justify-center">
+                <span className="text-emerald-700 text-sm">🏆</span>
               </div>
               <div>
-                <div className="text-white font-medium">Won Auction #1</div>
-                <div className="text-sm text-gray-400">2 days ago</div>
+                <div className="font-mono font-bold text-black uppercase tracking-wide">Won Auction #1</div>
+                <div className="font-mono text-xs text-black">2 days ago</div>
               </div>
             </div>
             <div className="text-right">
-              <div className="text-green-400 font-semibold">+1 NFT</div>
-              <div className="text-xs text-gray-400">0.5 ETH</div>
+              <div className="font-mono font-bold text-emerald-700">+1 NFT</div>
+              <div className="font-mono text-xs text-black">0.5 ETH</div>
             </div>
           </div>
 
-          <div className="flex items-center justify-between py-3 border-b border-white/10">
+          <div className="flex items-center justify-between py-3 border-b border-black">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
-                <span className="text-blue-400 text-sm">💎</span>
+              <div className="w-8 h-8 border border-black bg-white flex items-center justify-center">
+                <span className="text-black text-sm">💎</span>
               </div>
               <div>
-                <div className="text-white font-medium">Placed Bid</div>
-                <div className="text-sm text-gray-400">3 days ago</div>
+                <div className="font-mono font-bold text-black uppercase tracking-wide">Placed Bid</div>
+                <div className="font-mono text-xs text-black">3 days ago</div>
               </div>
             </div>
             <div className="text-right">
-              <div className="text-blue-400 font-semibold">0.3 ETH</div>
-              <div className="text-xs text-gray-400">Outbid & refunded</div>
+              <div className="font-mono font-bold text-black">0.3 ETH</div>
+              <div className="font-mono text-xs text-black">Outbid & refunded</div>
             </div>
           </div>
 
           <div className="text-center py-4">
-            <button className="text-blue-400 hover:text-blue-300 text-sm font-medium">View All Activity →</button>
+            <button className="font-mono text-xs font-bold text-black hover:text-emerald-700 uppercase tracking-widest">View All Activity →</button>
           </div>
         </div>
       </div>
