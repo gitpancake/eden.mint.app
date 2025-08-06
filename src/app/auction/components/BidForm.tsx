@@ -100,7 +100,7 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, isWinner, can
       <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10">
         <div className="text-center">
           <div className="text-gray-400 mb-4">Connect your wallet to participate in the auction</div>
-          <div className="text-sm text-gray-500">You&apos;ll need ETH on Base Sepolia to place bids</div>
+                      <div className="text-sm text-gray-500">You&apos;ll need ETH to place bids</div>
         </div>
       </div>
     );
