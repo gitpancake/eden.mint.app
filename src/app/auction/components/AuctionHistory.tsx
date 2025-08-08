@@ -188,7 +188,6 @@ export function AuctionHistory() {
     return (
       <div className="max-w-4xl mx-auto">
         <div className="border border-black p-8 bg-white text-center">
-          <div className="text-6xl mb-4">📚</div>
           <h2 className="font-mono text-2xl font-bold text-black uppercase tracking-widest mb-4">No Auction History</h2>
           <p className="font-mono text-sm text-black">No auctions have been completed yet. The first auction will appear here once it&apos;s finished.</p>
         </div>
@@ -268,7 +267,7 @@ export function AuctionHistory() {
                                 <span className="font-mono text-xs text-black">
                                   {bid.bidder.slice(0, 6)}...{bid.bidder.slice(-4)}
                                 </span>
-                                {bid.bidder === auction.highestBidder && <span className="font-mono text-xs text-emerald-700 font-bold">👑 WINNER</span>}
+                                {bid.bidder === auction.highestBidder && <span className="font-mono text-xs text-emerald-700 font-bold">winner</span>}
                               </div>
                               <div className="text-right">
                                 <span className="font-mono text-xs font-bold text-emerald-700">{parseFloat(formatEther(bid.amount)).toFixed(2)} ETH</span>
@@ -319,7 +318,7 @@ export function AuctionHistory() {
             <div className="font-mono text-xs text-black">
               Historical auctions shown: {Math.min(displayCount, historicalAuctions.length)} / {historicalAuctions.length}
             </div>
-            <div className="font-mono text-xs text-black">🚀 Using server-side data fetching with SWR caching!</div>
+            <div className="font-mono text-xs text-black">Using server-side data fetching with SWR caching</div>
           </div>
         )}
       </div>

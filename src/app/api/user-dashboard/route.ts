@@ -46,19 +46,29 @@ export async function GET(request: NextRequest) {
 
     // Fetch actual NFTs owned by the user
     const userNFTs = [];
+    const recentActivity: Array<{
+      type: "bid" | "won" | "outbid";
+      auctionId: string;
+      tokenId: string;
+      amount?: string;
+      timestamp: string;
+      note?: string;
+    }> = [];
 
     if (nftBalance > BigInt(0)) {
       console.log(`User has ${nftBalance} NFTs, fetching token details...`);
 
-      // Get all auction IDs to find which auctions the user won
+      // Get all auction IDs (limit to most recent N for activity)
       const allAuctionIds = (await readContract(client, {
         address: AUCTION_CONTRACT_CONFIG.address,
         abi: AUCTION_CONTRACT_CONFIG.abi,
         functionName: "getAllAuctionIds",
       })) as bigint[];
 
-      // For each auction, check if this user was the winner
-      for (const auctionId of allAuctionIds) {
+      const recentIds = allAuctionIds.slice(-50); // limit server work
+
+      // For each auction, check if this user was the winner and collect bid activity
+      for (const auctionId of recentIds) {
         try {
           // Get auction data
           const auctionResult = await readContract(client, {
@@ -106,7 +116,38 @@ export async function GET(request: NextRequest) {
                 winningBid: highestBid.toString(),
               });
             }
+
+            // Add win activity
+            recentActivity.push({
+              type: "won",
+              auctionId: auctionId.toString(),
+              tokenId: tokenId.toString(),
+              amount: highestBid.toString(),
+              timestamp: Date.now().toString(), // approximate; could use endTime if needed
+              note: "Auction settled: NFT minted",
+            });
           }
+
+          // Fetch bids for this auction and record user bids/outbids
+          const bidsData = (await readContract(client, {
+            address: AUCTION_CONTRACT_CONFIG.address,
+            abi: AUCTION_CONTRACT_CONFIG.abi,
+            functionName: "getAuctionBids",
+            args: [auctionId],
+          })) as Array<{ bidder: `0x${string}`; amount: bigint; timestamp: bigint }>;
+
+          const userBids = bidsData.filter((b) => b.bidder.toLowerCase() === userAddress.toLowerCase());
+          userBids.forEach((b) => {
+            const isWinningBid = highestBidder.toLowerCase() === userAddress.toLowerCase() && b.amount === highestBid;
+            recentActivity.push({
+              type: isWinningBid ? "bid" : "outbid",
+              auctionId: auctionId.toString(),
+              tokenId: tokenId.toString(),
+              amount: b.amount.toString(),
+              timestamp: b.timestamp.toString(),
+              note: isWinningBid ? "Currently winning" : "Outbid and refunded",
+            });
+          });
         } catch (auctionError) {
           console.error(`Error fetching auction ${auctionId}:`, auctionError);
         }
@@ -114,6 +155,10 @@ export async function GET(request: NextRequest) {
 
       console.log(`Found ${userNFTs.length} NFTs owned by user`);
     }
+
+    // Sort activity by timestamp desc and keep top 10
+    recentActivity.sort((a, b) => Number(b.timestamp) - Number(a.timestamp));
+    const activity = recentActivity.slice(0, 10);
 
     const dashboardData = {
       userAddress,
@@ -124,6 +169,7 @@ export async function GET(request: NextRequest) {
       },
       nftBalance: nftBalance.toString(),
       userNFTs,
+      recentActivity: activity,
     };
 
     console.log(`Successfully fetched dashboard data for ${userAddress}`);

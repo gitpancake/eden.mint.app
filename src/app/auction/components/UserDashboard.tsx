@@ -23,6 +23,14 @@ interface UserDashboardResponse {
   };
   nftBalance: string;
   userNFTs: ServerUserNFT[];
+  recentActivity?: Array<{
+    type: "bid" | "won" | "outbid";
+    auctionId: string;
+    tokenId: string;
+    amount?: string;
+    timestamp: string;
+    note?: string;
+  }>;
 }
 
 // Client-side types (with BigInt)
@@ -82,7 +90,6 @@ export function UserDashboard() {
     return (
       <div className="max-w-4xl mx-auto">
         <div className="border border-black p-8 bg-white text-center">
-          <div className="text-6xl mb-4">🔐</div>
           <h2 className="font-mono text-2xl font-bold text-black uppercase tracking-widest mb-4">Connect Your Wallet</h2>
           <p className="font-mono text-sm text-black">Connect your wallet to view your NFTs, bids, and auction activity.</p>
         </div>
@@ -94,7 +101,6 @@ export function UserDashboard() {
     return (
       <div className="max-w-4xl mx-auto">
         <div className="border border-black p-8 bg-white text-center">
-          <div className="text-6xl mb-4">⚠️</div>
           <h2 className="font-mono text-2xl font-bold text-black uppercase tracking-widest mb-4">Error Loading Dashboard</h2>
           <p className="font-mono text-sm text-black">Failed to fetch dashboard data from the server.</p>
           <p className="font-mono text-xs text-black mt-2">{error instanceof Error ? error.message : "Unknown error"}</p>
@@ -205,7 +211,6 @@ export function UserDashboard() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <div className="text-6xl mb-4">🎨</div>
             <h4 className="font-mono text-xl font-bold text-black uppercase tracking-widest mb-2">No NFTs Yet</h4>
             <p className="font-mono text-sm text-black mb-6">Win an auction to add NFTs to your collection!</p>
             <a
@@ -227,43 +232,26 @@ export function UserDashboard() {
       <div className="border border-black p-8 bg-white">
         <h3 className="font-mono text-xl font-bold text-black uppercase tracking-widest mb-6">Recent Activity</h3>
 
-        <div className="space-y-4">
-          {/* Mock transaction history */}
-          <div className="flex items-center justify-between py-3 border-b border-black">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 border border-emerald-200 bg-emerald-50 flex items-center justify-center">
-                <span className="text-emerald-700 text-sm">🏆</span>
-              </div>
-              <div>
-                <div className="font-mono font-bold text-black uppercase tracking-wide">Won Auction #1</div>
-                <div className="font-mono text-xs text-black">2 days ago</div>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="font-mono font-bold text-emerald-700">+1 NFT</div>
-              <div className="font-mono text-xs text-black">0.5 ETH</div>
-            </div>
-          </div>
+        <div className="space-y-2">
+          {(serverData?.recentActivity || []).length === 0 && <div className="font-mono text-xs text-black">No recent activity.</div>}
 
-          <div className="flex items-center justify-between py-3 border-b border-black">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 border border-black bg-white flex items-center justify-center">
-                <span className="text-black text-sm">💎</span>
+          {(serverData?.recentActivity || []).map((evt, idx) => {
+            const amount = evt.amount ? `${formatEther(BigInt(evt.amount))} ETH` : "";
+            const ts = new Date(Number(evt.timestamp) * (evt.timestamp.length > 10 ? 1 : 1000)).toLocaleString();
+            const left = evt.type === "won" ? `Won auction #${evt.auctionId}` : evt.type === "outbid" ? `Outbid on auction #${evt.auctionId}` : `Bid placed on auction #${evt.auctionId}`;
+            const right = evt.type === "won" ? `+1 NFT · ${amount}` : amount || evt.note || "";
+            return (
+              <div key={idx} className="flex items-center justify-between py-3 border-b border-black">
+                <div className="flex items-center space-x-3">
+                  <div>
+                    <div className="font-mono font-bold text-black uppercase tracking-wide">{left}</div>
+                    <div className="font-mono text-xs text-black">{ts}</div>
+                  </div>
+                </div>
+                <div className="text-right">{right && <div className="font-mono text-xs text-black">{right}</div>}</div>
               </div>
-              <div>
-                <div className="font-mono font-bold text-black uppercase tracking-wide">Placed Bid</div>
-                <div className="font-mono text-xs text-black">3 days ago</div>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="font-mono font-bold text-black">0.3 ETH</div>
-              <div className="font-mono text-xs text-black">Outbid & refunded</div>
-            </div>
-          </div>
-
-          <div className="text-center py-4">
-            <button className="font-mono text-xs font-bold text-black hover:text-emerald-700 uppercase tracking-widest">View All Activity →</button>
-          </div>
+            );
+          })}
         </div>
       </div>
     </div>
