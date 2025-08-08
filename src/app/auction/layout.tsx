@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
-const title = "Solienne — Rolling Daily Auction";
-const description = "Bid on Solienne artwork in a rolling on-chain auction. Refundable bids, instant event updates, and periodic rest windows.";
+const title = "Abraham — Rolling Daily Auction";
+const description = "Bid on Abraham artwork in a rolling on-chain auction. Refundable bids, instant event updates, and periodic rest windows.";
 
 export const metadata: Metadata = {
   title,

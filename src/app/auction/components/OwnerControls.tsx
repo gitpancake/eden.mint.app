@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { AUCTION_CONTRACT_CONFIG } from "../config/contract";
 
@@ -27,7 +27,16 @@ export function OwnerControls({ owner }: OwnerControlsProps) {
   const [auctionMinutes, setAuctionMinutes] = useState(auctionDuration ? Number(auctionDuration) / 60 : 15);
   const [restHours, setRestHours] = useState(restDuration ? Math.round(Number(restDuration) / 3600) : 24);
 
-  if (!isOwner) return null;
+  useEffect(() => {
+    if (auctionDuration) {
+      setAuctionMinutes(Number(auctionDuration) / 60);
+    }
+    if (restDuration) {
+      setRestHours(Math.round(Number(restDuration) / 60));
+    }
+  }, [auctionDuration, restDuration]);
+
+  if (!isOwner || !auctionDuration || !restDuration) return null;
 
   return (
     <div className="border border-black p-6 bg-white">
@@ -59,7 +68,7 @@ export function OwnerControls({ owner }: OwnerControlsProps) {
           </button>
         </div>
         <div>
-          <label className="font-mono text-xs text-black uppercase tracking-widest">Rest duration (hours)</label>
+          <label className="font-mono text-xs text-black uppercase tracking-widest">Rest duration (minutes)</label>
           <input type="number" min={1} value={restHours} onChange={(e) => setRestHours(Number(e.target.value))} className="w-full bg-white border border-black px-3 py-2 font-mono text-black" />
           <button
             className="mt-2 bg-black text-white px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest border border-black"
