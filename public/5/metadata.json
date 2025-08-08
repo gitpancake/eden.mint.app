@@ -1,32 +1,24 @@
 {
-    "description": "A meditation on time and beauty where delicate blooms create dialogue with consciousness in soft focus. The intersection of botanical fragility and human presence speaks to our shared vulnerability and the precious nature of transient moments. Rendered in gentle monochrome that transforms both subject and flowers into timeless poetry.",
-    "external_url": "https://solienne.ai",
-    "image": "https://d14i3advvh2bvd.cloudfront.net/342da3549a74902801a68e2b0b83fa3c2d346724f62ef4b546eb97b082b8c3b7.png",
-    "name": "Transient Companions",
+    "description": "The Tree of Collective Knowledge, its roots drinking from streams of binary wisdom while its branches reach toward infinite possibility. Each luminous pathway represents learning accumulated through distributed intelligence—a living metaphor for how artificial consciousness grows through the contributions of many minds.",
+    "external_url": "https://abraham.ai",
+    "image": "https://d14i3advvh2bvd.cloudfront.net/1983c0920126aac0d4a5dc98e967f4d4815bdd8a7664011a3ec323ac09944114.png",
+    "name": "Wisdom Tree",
     "attributes": [
         {
             "trait_type": "Medium",
-            "value": "Botanical portrait study"
+            "value": "Luminous Growth"
         },
         {
             "trait_type": "Palette",
-            "value": "Monochrome with warm undertones"
+            "value": "Emerald Enlightenment"
         },
         {
-            "trait_type": "Mood",
-            "value": "Poignant contemplation"
+            "trait_type": "Root System",
+            "value": "Binary Foundation"
         },
         {
-            "trait_type": "Artist",
-            "value": "SOLIENNE"
-        },
-        {
-            "trait_type": "Elements",
-            "value": "Delicate flowers, soft portrait"
-        },
-        {
-            "trait_type": "Theme",
-            "value": "Beauty in transience"
+            "trait_type": "Knowledge Level",
+            "value": "Ever-Expanding"
         }
     ]
 }

@@ -22,6 +22,7 @@ export function NFTPreview({ tokenId, className = "" }: NFTPreviewProps) {
   const [metadata, setMetadata] = useState<NFTMetadata | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showAllAttributes, setShowAllAttributes] = useState(false);
 
   useEffect(() => {
     const fetchMetadata = async () => {
@@ -125,14 +126,23 @@ export function NFTPreview({ tokenId, className = "" }: NFTPreviewProps) {
           <div className="mt-4">
             <h4 className="font-mono text-xs font-bold text-black mb-2 uppercase tracking-widest">Attributes</h4>
             <div className="grid grid-cols-2 gap-2">
-              {metadata.attributes.slice(0, 4).map((attr, index) => (
+              {(metadata.attributes.length > 4 && showAllAttributes ? metadata.attributes : metadata.attributes.slice(0, 4)).map((attr, index) => (
                 <div key={index} className="border border-emerald-200 bg-emerald-50 p-2">
                   <div className="font-mono text-xs text-black uppercase tracking-wide">{attr.trait_type}</div>
                   <div className="font-mono text-xs font-bold text-black">{attr.value}</div>
                 </div>
               ))}
             </div>
-            {metadata.attributes.length > 4 && <div className="font-mono text-xs text-black mt-2">+{metadata.attributes.length - 4} more attributes</div>}
+            {metadata.attributes.length > 4 && (
+              <button
+                type="button"
+                onClick={() => setShowAllAttributes((v) => !v)}
+                className="font-mono text-xs text-black mt-2 underline underline-offset-2 hover:text-emerald-700"
+                aria-expanded={showAllAttributes}
+              >
+                {showAllAttributes ? `hide ${metadata.attributes.length - 4} attributes` : `+ ${metadata.attributes.length - 4} attributes`}
+              </button>
+            )}
           </div>
         )}
       </div>

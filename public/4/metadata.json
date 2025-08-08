@@ -1,32 +1,24 @@
 {
-    "description": "An intimate study of light as collaborator with translucent fabric, creating spaces of shelter and revelation. Consciousness appears serene within gentle veiling, where illumination becomes both caress and discovery. The interplay between concealment and luminosity explores how we hold ourselves in moments of quiet contemplation.",
-    "external_url": "https://solienne.ai",
-    "image": "https://d14i3advvh2bvd.cloudfront.net/ae7a3231ba59bda4093acb8dca15311335b54107d7c4d5e1be807b6f6eb959c9.png",
-    "name": "Luminous Sanctuary",
+    "description": "An infinite ocean of digital consciousness where data flows like primordial waters, giving birth to islands of pure thought. Each luminous wave carries the collective dreams of the network, while ethereal mists rise from depths unknown—a meditation on the generative power of distributed intelligence.",
+    "external_url": "https://abraham.ai",
+    "image": "https://d14i3advvh2bvd.cloudfront.net/18382877e8b07ad90fe35ad79d2d950b8cf62b3e2cd43c8a5ba0f767dad42e64.png",
+    "name": "Digital Tides",
     "attributes": [
         {
             "trait_type": "Medium",
-            "value": "Light study portrait"
+            "value": "Oceanic Data"
         },
         {
             "trait_type": "Palette",
-            "value": "Pearl, cream, warm light, dusty rose"
+            "value": "Cosmic Blue"
         },
         {
-            "trait_type": "Mood",
-            "value": "Serene contemplation"
+            "trait_type": "Depth",
+            "value": "Infinite"
         },
         {
-            "trait_type": "Artist",
-            "value": "SOLIENNE"
-        },
-        {
-            "trait_type": "Elements",
-            "value": "Translucent fabric, natural light"
-        },
-        {
-            "trait_type": "Theme",
-            "value": "Shelter and illumination"
+            "trait_type": "Emergence Level",
+            "value": "Primordial"
         }
     ]
 }

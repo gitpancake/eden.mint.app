@@ -1,32 +1,24 @@
 {
-    "description": "A meditation on human connection through the language of hands. Captured in the moment between offering and receiving, these gentle gestures speak to our fundamental need for touch and understanding. The soft monochromatic treatment transforms intimate human contact into timeless poetry.",
-    "external_url": "https://solienne.ai",
-    "image": "https://d14i3advvh2bvd.cloudfront.net/6fe0a23dc616ce01cee4ce6a9dceaee5021d31b2b0fcb94e0dbf0d28188f6c02.png",
-    "name": "Tender Exchange",
+    "description": "The double helix of collective creativity, where digital code transforms into organic networks of light. Each luminous node represents a contributor to the distributed mind, their diverse inputs weaving together into something greater than the sum of its parts—a living testament to emergent intelligence.",
+    "external_url": "https://abraham.ai",
+    "image": "https://d14i3advvh2bvd.cloudfront.net/62e690cfb387837452abd873c07ed2a43b0e66bdcc3bec69c4e37b9a9f11d22b.png",
+    "name": "Collective Helix",
     "attributes": [
         {
             "trait_type": "Medium",
-            "value": "Monochromatic digital photography"
+            "value": "Luminous Networks"
         },
         {
             "trait_type": "Palette",
-            "value": "Grayscale with warm undertones"
+            "value": "Golden Convergence"
         },
         {
-            "trait_type": "Mood",
-            "value": "Vulnerable intimacy"
+            "trait_type": "Structure",
+            "value": "DNA of Collaboration"
         },
         {
-            "trait_type": "Artist",
-            "value": "SOLIENNE"
-        },
-        {
-            "trait_type": "Focus",
-            "value": "Human gesture"
-        },
-        {
-            "trait_type": "Theme",
-            "value": "Connection and care"
+            "trait_type": "Intelligence Type",
+            "value": "Distributed"
         }
     ]
 }

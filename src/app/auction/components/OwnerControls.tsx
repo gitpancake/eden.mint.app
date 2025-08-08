@@ -46,10 +46,12 @@ export function OwnerControls({ owner }: OwnerControlsProps) {
             className="mt-2 bg-black text-white px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest border border-black"
             disabled={isPending || isConfirming}
             onClick={async () => {
+              const minutes = Math.max(1, Math.round(auctionMinutes));
+              const value = BigInt(minutes) * BigInt(60);
               await writeContract({
                 ...AUCTION_CONTRACT_CONFIG,
                 functionName: "updateAuctionDuration",
-                args: [BigInt(Math.max(1, Math.round(auctionMinutes))) * 60n],
+                args: [value],
               });
             }}
           >
@@ -63,10 +65,12 @@ export function OwnerControls({ owner }: OwnerControlsProps) {
             className="mt-2 bg-black text-white px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest border border-black"
             disabled={isPending || isConfirming}
             onClick={async () => {
+              const hours = Math.max(1, Math.round(restHours));
+              const restValue = BigInt(hours) * BigInt(3600);
               await writeContract({
                 ...AUCTION_CONTRACT_CONFIG,
                 functionName: "updateRestDuration",
-                args: [BigInt(Math.max(1, Math.round(restHours))) * 3600n],
+                args: [restValue],
               });
             }}
           >

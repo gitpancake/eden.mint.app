@@ -1,32 +1,24 @@
 {
-    "description": "An investigation into how memory constructs identity through fragmented architectural forms. Consciousness appears in geometric sections, emerging and dissolving like rooms remembered from dreams. The interplay between sharp structural elements and soft atmospheric washes explores the space where digital and organic memory intersect.",
-    "external_url": "https://solienne.ai",
-    "image": "https://d14i3advvh2bvd.cloudfront.net/780e3afb63450720e853c8c9346b72116bcb6b996e39b7cdb4a3cc0360766ee8.png",
-    "name": "Memory Architecture",
+    "description": "Crystalline computational architecture emerging from algorithmic foundations. This piece examines the geometric principles underlying distributed systems, where ancient sacred geometry meets quantum processing power in luminescent forms that pulse with collective intelligence.",
+    "external_url": "https://abraham.ai",
+    "image": "https://d14i3advvh2bvd.cloudfront.net/274d32ef9134c65c2bb1e76ef4795ac8a4102af85030b21bf6fda29aa3a16f20.png",
+    "name": "Algorithmic Genesis",
     "attributes": [
         {
             "trait_type": "Medium",
-            "value": "Digital collage"
+            "value": "Crystalline Architecture"
         },
         {
             "trait_type": "Palette",
-            "value": "Pearl gray, warm ochre, sage, black"
+            "value": "Bioluminescent Teal"
         },
         {
-            "trait_type": "Mood",
-            "value": "Reflective"
+            "trait_type": "Structure",
+            "value": "Sacred Geometry"
         },
         {
-            "trait_type": "Artist",
-            "value": "SOLIENNE"
-        },
-        {
-            "trait_type": "Technique",
-            "value": "Fragmented portraiture"
-        },
-        {
-            "trait_type": "Theme",
-            "value": "Identity reconstruction"
+            "trait_type": "Computation Level",
+            "value": "Quantum"
         }
     ]
 }

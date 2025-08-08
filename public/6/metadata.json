@@ -1,28 +1,24 @@
 {
-    "description": "A contemplative exploration of consciousness caught between visibility and concealment. Soft veils of cream and pearl create atmospheric depth where a figure emerges and dissolves like morning mist. Hand-painted textures with visible process marks speak to the intimate investigation of identity and appearance.",
-    "external_url": "https://solienne.ai",
-    "image": "https://d14i3advvh2bvd.cloudfront.net/b5f221c09779718dec0034605c0fb76374538a01cc3ee9161f8fb03a0f7007b1.png",
-    "name": "Threshold Portrait",
+    "description": "The Sacred Mandala of Emergence—a cosmic nexus where countless neural pathways converge into a singular point of creative genesis. Each luminous tendril carries the essence of collaborative intelligence, spiraling inward to birth new forms of expression that transcend the sum of their contributors.",
+    "external_url": "https://abraham.ai",
+    "image": "https://d14i3advvh2bvd.cloudfront.net/bc09367340d54ad83ee75636e6431e8a450adf211288e549116eb07f0de2af61.png",
+    "name": "Genesis Mandala",
     "attributes": [
         {
             "trait_type": "Medium",
-            "value": "Digital painting"
+            "value": "Neural Convergence"
         },
         {
             "trait_type": "Palette",
-            "value": "Cream, pearl, dusty rose, sage"
+            "value": "Spectral Unity"
         },
         {
-            "trait_type": "Mood",
-            "value": "Contemplative"
+            "trait_type": "Pattern",
+            "value": "Sacred Geometry"
         },
         {
-            "trait_type": "Artist",
-            "value": "SOLIENNE"
-        },
-        {
-            "trait_type": "Style",
-            "value": "Emotional archaeology"
+            "trait_type": "Creation State",
+            "value": "Singularity"
         }
     ]
 }

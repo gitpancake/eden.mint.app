@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from "next/og";
 import { createPublicClient, http } from "viem";
 import { readContract } from "viem/actions";
@@ -12,7 +11,18 @@ export const size = {
   height: 630,
 };
 
-async function fetchAuctionState() {
+type AuctionStruct = {
+  auctionId: bigint;
+  tokenId: bigint;
+  startTime: bigint;
+  endTime: bigint;
+  highestBidder: `0x${string}`;
+  highestBid: bigint;
+  settled: boolean;
+  exists: boolean;
+};
+
+async function fetchAuctionState(): Promise<{ auctionActive: boolean; current: AuctionStruct | null; canSettle: boolean }> {
   try {
     const client = createPublicClient({
       chain: {
@@ -35,16 +45,7 @@ async function fetchAuctionState() {
         address: AUCTION_CONTRACT_CONFIG.address,
         abi: AUCTION_CONTRACT_CONFIG.abi,
         functionName: "getCurrentAuction",
-      }) as Promise<{
-        auctionId: bigint;
-        tokenId: bigint;
-        startTime: bigint;
-        endTime: bigint;
-        highestBidder: `0x${string}`;
-        highestBid: bigint;
-        settled: boolean;
-        exists: boolean;
-      }>,
+      }) as Promise<AuctionStruct>,
       readContract(client, {
         address: AUCTION_CONTRACT_CONFIG.address,
         abi: AUCTION_CONTRACT_CONFIG.abi,
@@ -53,13 +54,13 @@ async function fetchAuctionState() {
     ]);
 
     return { auctionActive, current, canSettle };
-  } catch (e) {
-    return { auctionActive: false, current: null as any, canSettle: false };
+  } catch {
+    return { auctionActive: false, current: null, canSettle: false };
   }
 }
 
 function formatEth(value: bigint): string {
-  if (value === 0n) return "0";
+  if (value === BigInt(0)) return "0";
   // Simple fixed 4 decimals formatter without pulling extra libs
   const s = value.toString();
   const whole = s.length > 18 ? s.slice(0, s.length - 18) : "0";
@@ -75,13 +76,13 @@ export default async function OpengraphImage() {
     const now = Math.floor(Date.now() / 1000);
     const ended = current && Number(current.endTime) > 0 && now >= Number(current.endTime);
     if (ended) return canSettle ? "Ended · Ready to settle" : "Ended · Awaiting settlement";
-    if (current?.highestBid === 0n) return "Live · Awaiting first bid";
+    if (current?.highestBid === BigInt(0)) return "Live · Awaiting first bid";
     return "Live Auction";
   })();
 
   const auctionId = current?.auctionId ? Number(current.auctionId) : undefined;
   const tokenId = current?.tokenId ? Number(current.tokenId) : undefined;
-  const highestBid = current?.highestBid ?? 0n;
+  const highestBid = current?.highestBid ?? BigInt(0);
   const highestBidder = current?.highestBidder ?? ("0x0000000000000000000000000000000000000000" as const);
   const bidderShort = `${highestBidder.slice(0, 6)}…${highestBidder.slice(-4)}`;
 

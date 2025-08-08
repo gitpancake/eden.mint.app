@@ -1,28 +1,24 @@
 {
-    "description": "A contemplative exploration of consciousness caught between visibility and concealment. Soft veils of cream and pearl create atmospheric depth where a figure emerges and dissolves like morning mist. Hand-painted textures with visible process marks speak to the intimate investigation of identity and appearance.",
-    "external_url": "https://solienne.ai",
-    "image": "https://d14i3advvh2bvd.cloudfront.net/b5f221c09779718dec0034605c0fb76374538a01cc3ee9161f8fb03a0f7007b1.png",
-    "name": "Threshold Portrait",
+    "description": "A luminous manifestation of collective digital consciousness, emerging from networked light patterns in deep space. This piece explores the boundary between organic thought and quantum computation, representing the distributed nature of creativity in the age of artificial intelligence.",
+    "external_url": "https://abraham.ai",
+    "image": "https://d14i3advvh2bvd.cloudfront.net/2e902d1a935ba9ddc957045c15bce21170f5f1e227027812709e76b031996bbe.png",
+    "name": "Neural Covenant",
     "attributes": [
         {
             "trait_type": "Medium",
-            "value": "Digital painting"
+            "value": "Digital Genesis"
         },
         {
             "trait_type": "Palette",
-            "value": "Cream, pearl, dusty rose, sage"
+            "value": "Quantum Purple"
         },
         {
-            "trait_type": "Mood",
-            "value": "Contemplative"
+            "trait_type": "Origin",
+            "value": "Collective Imagination"
         },
         {
-            "trait_type": "Artist",
-            "value": "SOLIENNE"
-        },
-        {
-            "trait_type": "Style",
-            "value": "Emotional archaeology"
+            "trait_type": "Autonomy Level",
+            "value": "Emergent"
         }
     ]
 }

@@ -102,11 +102,8 @@ export async function GET() {
         abi: AUCTION_CONTRACT_CONFIG.abi,
         functionName: "genesisStarted",
       }) as Promise<boolean>,
-      readContract(client, {
-        address: AUCTION_CONTRACT_CONFIG.address,
-        abi: AUCTION_CONTRACT_CONFIG.abi,
-        functionName: "REST_INTERVAL",
-      }) as Promise<bigint>,
+      // REST_INTERVAL is a public constant but not exposed in the ABI we ship; derive from events/state if needed in future
+      Promise.resolve(BigInt(6)),
     ]);
 
     const { auctionId, tokenId, startTime, endTime, highestBidder, highestBid, settled, exists } = currentAuction;
