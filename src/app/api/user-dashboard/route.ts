@@ -135,9 +135,13 @@ export async function GET(request: NextRequest) {
             functionName: "getAuctionBids",
             args: [auctionId],
           })) as Array<{ bidder: `0x${string}`; amount: bigint; timestamp: bigint }>;
-
+          // De-duplicate by timestamp+amount for cleaner feed
           const userBids = bidsData.filter((b) => b.bidder.toLowerCase() === userAddress.toLowerCase());
+          const seen = new Set<string>();
           userBids.forEach((b) => {
+            const key = `${auctionId.toString()}-${b.timestamp.toString()}-${b.amount.toString()}`;
+            if (seen.has(key)) return;
+            seen.add(key);
             const isWinningBid = highestBidder.toLowerCase() === userAddress.toLowerCase() && b.amount === highestBid;
             recentActivity.push({
               type: isWinningBid ? "bid" : "outbid",

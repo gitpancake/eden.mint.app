@@ -4,6 +4,7 @@ import { useState } from "react";
 import useSWR from "swr";
 import { formatEther } from "viem";
 import { useAccount } from "wagmi";
+import { useAuctionEvents } from "../hooks/useAuctionEvents";
 
 // Types for server response
 interface ServerUserNFT {
@@ -60,10 +61,24 @@ export function UserDashboard() {
     data: serverData,
     error,
     isLoading: loading,
+    mutate,
   } = useSWR<UserDashboardResponse>(address ? `/api/user-dashboard?address=${address}&refresh=${refreshTrigger}` : null, fetcher, {
     refreshInterval: 30000, // Refresh every 30 seconds
     revalidateOnFocus: false,
     revalidateOnReconnect: true,
+  });
+
+  // Event-driven refresh for immediate updates when the user bids, is outbid, or wins
+  useAuctionEvents({
+    onBidPlaced: ({ bidder }) => {
+      if (address && bidder.toLowerCase() === address.toLowerCase()) mutate();
+    },
+    onBidRefunded: ({ bidder }) => {
+      if (address && bidder.toLowerCase() === address.toLowerCase()) mutate();
+    },
+    onAuctionSettled: ({ winner }) => {
+      if (address && winner.toLowerCase() === address.toLowerCase()) mutate();
+    },
   });
 
   // Convert server data to client data
