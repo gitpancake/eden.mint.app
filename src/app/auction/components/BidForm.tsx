@@ -9,17 +9,13 @@ interface BidFormProps {
   currentBid: bigint;
   auctionActive: boolean;
   auctionEnded: boolean;
-  auctionStarted: boolean;
-  firstAuctionEverStarted: boolean;
   isWinner: boolean;
-  canClaim: boolean;
-  canExpire: boolean;
+  canSettle: boolean;
   onBidSuccess?: () => void;
-  onClaimSuccess?: () => void;
-  onExpireSuccess?: () => void;
+  onSettleSuccess?: () => void;
 }
 
-export function BidForm({ currentBid, auctionActive, auctionEnded, auctionStarted, firstAuctionEverStarted, isWinner, canClaim, canExpire, onBidSuccess, onClaimSuccess, onExpireSuccess }: BidFormProps) {
+export function BidForm({ currentBid, auctionActive, auctionEnded, isWinner, canSettle, onBidSuccess, onSettleSuccess }: BidFormProps) {
   const { isConnected } = useAccount();
   const [bidAmount, setBidAmount] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -63,41 +59,24 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, auctionStarte
     }
   };
 
-  const handleClaimNFT = async () => {
+  const handleSettleAuction = async () => {
     if (!isConnected) return;
 
     try {
       setIsSubmitting(true);
       await writeContract({
         ...AUCTION_CONTRACT_CONFIG,
-        functionName: "claimNFT",
+        functionName: "settleAuction",
       });
-      onClaimSuccess?.();
+      onSettleSuccess?.();
     } catch (err) {
-      console.error("Error claiming NFT:", err);
+      console.error("Error settling auction:", err);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleExpireAuction = async () => {
-    if (!isConnected) return;
-
-    try {
-      setIsSubmitting(true);
-      await writeContract({
-        ...AUCTION_CONTRACT_CONFIG,
-        functionName: "expireAuction",
-      });
-      onExpireSuccess?.();
-    } catch (err) {
-      console.error("Error expiring auction:", err);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-    if (!isConnected) {
+  if (!isConnected) {
     return (
       <div className="border border-black p-6 bg-white">
         <div className="text-center">
@@ -116,55 +95,27 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, auctionStarte
     );
   }
 
-  // Show claim button for winner
-  if (auctionEnded && isWinner && canClaim) {
+  // Show settle button if auction can be settled
+  if (canSettle) {
     return (
       <div className="border border-black p-6 bg-white">
         <div className="text-center mb-4">
-          <div className="text-2xl mb-2">🎉</div>
-          <div className="font-mono text-xl font-bold text-emerald-700 mb-2 uppercase tracking-widest">Congratulations! You won!</div>
-          <div className="font-mono text-xs text-black mb-4 uppercase tracking-wide">Claim your NFT to mint it and start the next auction</div>
+          <div className="font-mono text-xl font-bold text-black mb-2 uppercase tracking-widest">Auction Ready to Settle</div>
+          <div className="font-mono text-xs text-black mb-4 uppercase tracking-wide">This auction has ended and can be settled. Anyone can trigger settlement.</div>
         </div>
 
         <button
-          onClick={handleClaimNFT}
-          disabled={isSubmitting || isPending || isConfirming}
-          className="w-full bg-emerald-700 text-white py-4 px-6 font-mono text-sm font-bold uppercase tracking-widest hover:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-black"
-        >
-          {isSubmitting || isPending || isConfirming ? (
-            <div className="flex items-center justify-center">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-              {isPending ? "Confirm in wallet..." : isConfirming ? "Claiming..." : "Processing..."}
-            </div>
-          ) : (
-            "🏆 Claim NFT & Start Next Auction"
-          )}
-        </button>
-      </div>
-    );
-  }
-
-  // Show expire button if auction can be expired
-  if (canExpire) {
-    return (
-      <div className="border border-black p-6 bg-white">
-        <div className="text-center mb-4">
-          <div className="font-mono text-xl font-bold text-black mb-2 uppercase tracking-widest">Auction Expired</div>
-          <div className="font-mono text-xs text-black mb-4 uppercase tracking-wide">No bids were placed. Anyone can expire this auction to start the next one.</div>
-        </div>
-
-        <button
-          onClick={handleExpireAuction}
+          onClick={handleSettleAuction}
           disabled={isSubmitting || isPending || isConfirming}
           className="w-full bg-black text-white py-4 px-6 font-mono text-sm font-bold uppercase tracking-widest hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-black"
         >
           {isSubmitting || isPending || isConfirming ? (
             <div className="flex items-center justify-center">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-              {isPending ? "Confirm in wallet..." : isConfirming ? "Expiring..." : "Processing..."}
+              {isPending ? "Confirm in wallet..." : isConfirming ? "Settling..." : "Processing..."}
             </div>
           ) : (
-            "⏰ Expire Auction & Start Next"
+            "⚡ Settle Auction & Start Next"
           )}
         </button>
       </div>
@@ -177,13 +128,13 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, auctionStarte
       <div className="border border-black p-6 bg-white">
         <div className="text-center">
           <div className="font-mono text-xl font-bold text-black mb-2 uppercase tracking-widest">Auction Ended</div>
-          <div className="font-mono text-xs text-black uppercase tracking-wide">Waiting for winner to claim NFT and start next auction</div>
+          <div className="font-mono text-xs text-black uppercase tracking-wide">Waiting for settlement</div>
         </div>
       </div>
     );
   }
 
-    // Main bidding form
+  // Main bidding form
   return (
     <div className="border border-black p-6 bg-white">
       <div className="mb-4">
@@ -240,8 +191,10 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, auctionStarte
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
             {isPending ? "Confirm in wallet..." : isConfirming ? "Placing bid..." : "Processing..."}
           </div>
+        ) : currentBid === BigInt(0) ? (
+          "🚀 Place First Bid"
         ) : (
-          !firstAuctionEverStarted && !auctionStarted ? "🚀 Launch Auctions" : "💎 Place Bid"
+          "💎 Place Bid"
         )}
       </button>
 

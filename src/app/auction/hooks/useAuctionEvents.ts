@@ -9,9 +9,12 @@ interface UseAuctionEventsProps {
   onBidRefunded?: (data: { bidder: string; amount: bigint; auctionId: bigint }) => void;
   onAuctionSettled?: (data: { winner: string; amount: bigint; tokenId: bigint; auctionId: bigint }) => void;
   onAuctionStarted?: (data: { auctionId: bigint; tokenId: bigint; endTime: bigint }) => void;
+  onRestScheduled?: (data: { nextAuctionEarliestStartTime: bigint }) => void;
+  onAuctionDurationUpdated?: (data: { newDuration: bigint }) => void;
+  onRestDurationUpdated?: (data: { newDuration: bigint }) => void;
 }
 
-export function useAuctionEvents({ onBidPlaced, onBidRefunded, onAuctionSettled, onAuctionStarted }: UseAuctionEventsProps = {}) {
+export function useAuctionEvents({ onBidPlaced, onBidRefunded, onAuctionSettled, onAuctionStarted, onRestScheduled, onAuctionDurationUpdated, onRestDurationUpdated }: UseAuctionEventsProps = {}) {
   const { address } = useAccount();
 
   // Watch for bid placed events
@@ -82,6 +85,44 @@ export function useAuctionEvents({ onBidPlaced, onBidRefunded, onAuctionSettled,
           onAuctionStarted?.({ auctionId, tokenId, endTime });
           console.log(`🎨 New auction #${auctionId.toString()} started for Token #${tokenId.toString()}!`);
         }
+      });
+    },
+  });
+
+  // Rest scheduled
+  useWatchContractEvent({
+    ...AUCTION_CONTRACT_CONFIG,
+    eventName: "RestScheduled",
+    onLogs(logs) {
+      logs.forEach((log) => {
+        const { nextAuctionEarliestStartTime } = log.args as { nextAuctionEarliestStartTime: bigint };
+        if (nextAuctionEarliestStartTime) {
+          onRestScheduled?.({ nextAuctionEarliestStartTime });
+          console.log(`🛌 Rest scheduled. Next auction earliest start at ${nextAuctionEarliestStartTime.toString()}`);
+        }
+      });
+    },
+  });
+
+  // Durations updated
+  useWatchContractEvent({
+    ...AUCTION_CONTRACT_CONFIG,
+    eventName: "AuctionDurationUpdated",
+    onLogs(logs) {
+      logs.forEach((log) => {
+        const { newDuration } = log.args as { newDuration: bigint };
+        if (newDuration) onAuctionDurationUpdated?.({ newDuration });
+      });
+    },
+  });
+
+  useWatchContractEvent({
+    ...AUCTION_CONTRACT_CONFIG,
+    eventName: "RestDurationUpdated",
+    onLogs(logs) {
+      logs.forEach((log) => {
+        const { newDuration } = log.args as { newDuration: bigint };
+        if (newDuration) onRestDurationUpdated?.({ newDuration });
       });
     },
   });

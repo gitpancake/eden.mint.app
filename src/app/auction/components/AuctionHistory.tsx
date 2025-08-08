@@ -1,75 +1,147 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import useSWR from "swr";
 import { formatEther } from "viem";
-import { useReadContract } from "wagmi";
-import { AUCTION_CONTRACT_CONFIG, type Auction } from "../config/contract";
 
-interface HistoricalAuction extends Auction {
-  bids?: Array<{
-    bidder: string;
-    amount: bigint;
-    timestamp: bigint;
-  }>;
+// Types for server response
+interface ServerBid {
+  bidder: `0x${string}`;
+  amount: string; // BigInt as string from server
+  timestamp: string; // BigInt as string from server
 }
 
-export function AuctionHistory() {
-  const [selectedAuction, setSelectedAuction] = useState<number | null>(null);
-  const [historicalAuctions, setHistoricalAuctions] = useState<HistoricalAuction[]>([]);
-  const [loading, setLoading] = useState(true);
+interface ServerAuction {
+  auctionId: string;
+  tokenId: string;
+  startTime: string;
+  endTime: string;
+  highestBidder: `0x${string}`;
+  highestBid: string;
+  settled: boolean;
+  exists: boolean;
+  bids: ServerBid[];
+}
 
-  // Get all auction IDs
-  const { data: allAuctionIds, isLoading: idsLoading } = useReadContract({
-    ...AUCTION_CONTRACT_CONFIG,
-    functionName: "getAllAuctionIds",
-  });
+interface AuctionHistoryResponse {
+  auctions: ServerAuction[];
+  totalAuctionIds: number;
+  currentAuctionId: string;
+  historicalCount: number;
+}
 
-  // Fetch auction details for each ID
+// Client-side types (with BigInt)
+interface ClientBid {
+  bidder: `0x${string}`;
+  amount: bigint;
+  timestamp: bigint;
+}
+
+interface ClientAuction {
+  auctionId: bigint;
+  tokenId: bigint;
+  startTime: bigint;
+  endTime: bigint;
+  highestBidder: `0x${string}`;
+  highestBid: bigint;
+  settled: boolean;
+  exists: boolean;
+  bids: ClientBid[];
+}
+
+// NFT Thumbnail component
+function NFTThumbnail({ tokenId }: { tokenId: bigint }) {
+  const [imageSrc, setImageSrc] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    const fetchAuctionHistory = async () => {
-      if (!allAuctionIds || allAuctionIds.length === 0) {
-        setLoading(false);
-        return;
-      }
-
-      setLoading(true);
-      const auctions: HistoricalAuction[] = [];
-
+    const fetchNFTImage = async () => {
       try {
-        // Fetch auction data for each ID (excluding current auction)
-        const historicalIds = allAuctionIds.slice(0, -1).reverse(); // Most recent first, excluding current
+        const baseURI = process.env.NEXT_PUBLIC_NFT_BASE_URI || window.location.origin;
+        const metadataUrl = `${baseURI}/${tokenId.toString()}/metadata.json`;
 
-        for (const auctionId of historicalIds.slice(0, 10)) {
-          // Limit to last 10 for performance
-          try {
-            // This would need to be implemented with a multicall or batch read in a real app
-            // For now, we'll simulate the data structure
-            const auction: HistoricalAuction = {
-              auctionId: auctionId,
-              tokenId: auctionId, // Assuming tokenId matches auctionId for simplicity
-              startTime: BigInt(Date.now() / 1000 - 86400), // Mock data
-              endTime: BigInt(Date.now() / 1000 - 86100),
-              highestBidder: "0x742d35Cc6634C0532925a3b8D1B9E7C6F0A1234",
-              highestBid: BigInt(Math.floor(Math.random() * 1000000000000000000)), // Random bid
-              settled: true,
-              exists: true,
-            };
-            auctions.push(auction);
-          } catch (error) {
-            console.error(`Error fetching auction ${auctionId}:`, error);
+        const response = await fetch(metadataUrl);
+        if (response.ok) {
+          const metadata = await response.json();
+          if (metadata.image) {
+            setImageSrc(metadata.image);
+          } else {
+            setImageSrc(""); // Will use fallback
           }
         }
-
-        setHistoricalAuctions(auctions);
       } catch (error) {
-        console.error("Error fetching auction history:", error);
+        console.error(`Error fetching NFT metadata for token ${tokenId}:`, error);
+        setImageSrc(""); // Will use fallback
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
-    fetchAuctionHistory();
-  }, [allAuctionIds]);
+    fetchNFTImage();
+  }, [tokenId]);
+
+  if (isLoading) {
+    return (
+      <div className="w-16 h-16 border border-black bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-16 h-16 border border-black bg-white overflow-hidden">
+      {imageSrc ? (
+        <img src={imageSrc} alt={`NFT #${tokenId.toString()}`} className="w-full h-full object-cover" onError={() => setImageSrc("")} />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center text-black">
+          <span className="text-2xl">🖼️</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Fetcher function for SWR
+const fetcher = async (url: string): Promise<AuctionHistoryResponse> => {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error("Failed to fetch auction history");
+  }
+  return response.json();
+};
+
+export function AuctionHistory() {
+  const [selectedAuction, setSelectedAuction] = useState<number | null>(null);
+  const [displayCount, setDisplayCount] = useState(3); // Start with 3 auctions
+
+  // Use SWR for server-side data fetching with caching
+  const {
+    data: serverData,
+    error,
+    isLoading: loading,
+  } = useSWR<AuctionHistoryResponse>("/api/auction-history", fetcher, {
+    refreshInterval: 30000, // Refresh every 30 seconds
+    revalidateOnFocus: false,
+    revalidateOnReconnect: true,
+  });
+
+  // Convert server data (strings) to client data (BigInt)
+  const historicalAuctions: ClientAuction[] =
+    serverData?.auctions.map((auction) => ({
+      auctionId: BigInt(auction.auctionId),
+      tokenId: BigInt(auction.tokenId),
+      startTime: BigInt(auction.startTime),
+      endTime: BigInt(auction.endTime),
+      highestBidder: auction.highestBidder,
+      highestBid: BigInt(auction.highestBid),
+      settled: auction.settled,
+      exists: auction.exists,
+      bids: auction.bids.map((bid) => ({
+        bidder: bid.bidder,
+        amount: BigInt(bid.amount),
+        timestamp: BigInt(bid.timestamp),
+      })),
+    })) || [];
 
   const formatDate = (timestamp: bigint) => {
     return new Date(Number(timestamp) * 1000).toLocaleDateString("en-US", {
@@ -81,7 +153,20 @@ export function AuctionHistory() {
     });
   };
 
-  if (idsLoading || loading) {
+  if (error) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <div className="border border-black p-8 bg-white text-center">
+          <div className="text-6xl mb-4">⚠️</div>
+          <h2 className="font-mono text-2xl font-bold text-black uppercase tracking-widest mb-4">Error Loading Auctions</h2>
+          <p className="font-mono text-sm text-black">Failed to fetch auction data from the server.</p>
+          <p className="font-mono text-xs text-black mt-2">{error instanceof Error ? error.message : "Unknown error"}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
     return (
       <div className="max-w-4xl mx-auto">
         <div className="border border-black p-8 bg-white">
@@ -98,13 +183,14 @@ export function AuctionHistory() {
     );
   }
 
-  if (!historicalAuctions || historicalAuctions.length === 0) {
+  // Show "No Auction History" when we have confirmed there are no auctions from the server
+  if (!loading && (!historicalAuctions || historicalAuctions.length === 0)) {
     return (
       <div className="max-w-4xl mx-auto">
         <div className="border border-black p-8 bg-white text-center">
           <div className="text-6xl mb-4">📚</div>
           <h2 className="font-mono text-2xl font-bold text-black uppercase tracking-widest mb-4">No Auction History</h2>
-          <p className="font-mono text-sm text-black">This is the first auction, or no auctions have been completed yet.</p>
+          <p className="font-mono text-sm text-black">No auctions have been completed yet. The first auction will appear here once it&apos;s finished.</p>
         </div>
       </div>
     );
@@ -116,17 +202,14 @@ export function AuctionHistory() {
         <h2 className="font-mono text-2xl font-bold text-black uppercase tracking-widest mb-6">Auction History</h2>
 
         <div className="space-y-4">
-          {historicalAuctions.map((auction) => (
+          {historicalAuctions.slice(0, displayCount).map((auction) => (
             <div key={auction.auctionId.toString()} className="border border-black p-6 bg-white hover:bg-emerald-50 transition-colors">
               <div className="grid md:grid-cols-4 gap-4 items-center">
                 {/* NFT Preview */}
                 <div className="flex items-center space-x-4">
-                  <div className="w-16 h-16 border border-emerald-200 bg-emerald-50 flex items-center justify-center">
-                    <span className="text-2xl">🖼️</span>
-                  </div>
+                  <NFTThumbnail tokenId={auction.tokenId} />
                   <div>
                     <div className="font-mono font-bold text-black uppercase tracking-wide">Auction #{auction.auctionId.toString()}</div>
-                    <div className="font-mono text-xs text-black">Token #{auction.tokenId.toString()}</div>
                   </div>
                 </div>
 
@@ -141,7 +224,7 @@ export function AuctionHistory() {
                 {/* Final Bid */}
                 <div>
                   <div className="font-mono text-xs text-black mb-1 uppercase tracking-wide">Final Bid</div>
-                  <div className="font-mono font-bold text-emerald-700">{formatEther(auction.highestBid)} ETH</div>
+                  <div className="font-mono font-bold text-emerald-700">{parseFloat(formatEther(auction.highestBid)).toFixed(2)} ETH</div>
                 </div>
 
                 {/* End Date */}
@@ -173,21 +256,26 @@ export function AuctionHistory() {
                       </div>
                     </div>
 
-                    {/* Mock bid history */}
+                    {/* Real bid history from contract */}
                     <div>
-                      <div className="font-mono text-xs text-black mb-2 uppercase tracking-wide">Bid History:</div>
-                      <div className="border border-emerald-200 bg-emerald-50 p-4 space-y-2">
-                        <div className="flex justify-between">
-                          <span className="font-mono text-xs text-black">
-                            {auction.highestBidder.slice(0, 6)}...{auction.highestBidder.slice(-4)}
-                          </span>
-                          <span className="font-mono text-xs font-bold text-emerald-700">{formatEther(auction.highestBid)} ETH (Winning bid)</span>
-                        </div>
-                        {/* Add more mock bids */}
-                        <div className="flex justify-between opacity-60">
-                          <span className="font-mono text-xs text-black">0x123...abc</span>
-                          <span className="font-mono text-xs text-black">{formatEther(auction.highestBid - BigInt(100000000000000000))} ETH</span>
-                        </div>
+                      <div className="font-mono text-xs text-black mb-2 uppercase tracking-wide">Bid History ({auction.bids.length} bids):</div>
+                      <div className="border border-emerald-200 bg-emerald-50 p-4 space-y-2 max-h-40 overflow-y-auto">
+                        {auction.bids
+                          .sort((a, b) => Number(b.timestamp) - Number(a.timestamp)) // Most recent first
+                          .map((bid, index) => (
+                            <div key={index} className="flex justify-between items-center">
+                              <div className="flex items-center space-x-2">
+                                <span className="font-mono text-xs text-black">
+                                  {bid.bidder.slice(0, 6)}...{bid.bidder.slice(-4)}
+                                </span>
+                                {bid.bidder === auction.highestBidder && <span className="font-mono text-xs text-emerald-700 font-bold">👑 WINNER</span>}
+                              </div>
+                              <div className="text-right">
+                                <span className="font-mono text-xs font-bold text-emerald-700">{parseFloat(formatEther(bid.amount)).toFixed(2)} ETH</span>
+                                <div className="font-mono text-xs text-black">{formatDate(bid.timestamp)}</div>
+                              </div>
+                            </div>
+                          ))}
                       </div>
                     </div>
 
@@ -209,12 +297,29 @@ export function AuctionHistory() {
           ))}
         </div>
 
-        {/* Load more button (if there are more auctions) */}
-        {allAuctionIds && allAuctionIds.length > historicalAuctions.length + 1 && (
+        {/* Load more button (if there are more auctions to show) */}
+        {historicalAuctions.length > displayCount && (
           <div className="text-center mt-6">
-            <button className="bg-black text-white px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest hover:bg-emerald-700 transition-colors border border-black">
+            <button
+              onClick={() => setDisplayCount((prev) => prev + 3)}
+              className="bg-black text-white px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest hover:bg-emerald-700 transition-colors border border-black"
+            >
               Load More Auctions
             </button>
+          </div>
+        )}
+
+        {/* Debug info */}
+        {process.env.NODE_ENV === "development" && serverData && (
+          <div className="mt-8 p-4 border border-emerald-200 bg-emerald-50">
+            <div className="font-mono text-xs text-black mb-2">Debug Info:</div>
+            <div className="font-mono text-xs text-black">Total auction IDs: {serverData.totalAuctionIds}</div>
+            <div className="font-mono text-xs text-black">Current auction ID: {serverData.currentAuctionId}</div>
+            <div className="font-mono text-xs text-black">Historical auctions available: {serverData.historicalCount}</div>
+            <div className="font-mono text-xs text-black">
+              Historical auctions shown: {Math.min(displayCount, historicalAuctions.length)} / {historicalAuctions.length}
+            </div>
+            <div className="font-mono text-xs text-black">🚀 Using server-side data fetching with SWR caching!</div>
           </div>
         )}
       </div>

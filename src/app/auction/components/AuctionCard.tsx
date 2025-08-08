@@ -1,90 +1,82 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
+import useSWR from "swr";
 import { formatEther } from "viem";
-import { useAccount, useReadContract, useWatchContractEvent } from "wagmi";
+import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { AUCTION_CONTRACT_CONFIG, type Auction } from "../config/contract";
+import { useAuctionEvents } from "../hooks/useAuctionEvents";
 import { BidForm } from "./BidForm";
 import { CountdownTimer } from "./CountdownTimer";
 import { NFTPreview } from "./NFTPreview";
+import { OwnerControls } from "./OwnerControls";
+import { RestCountdown } from "./RestCountdown";
 
 export function AuctionCard() {
   const { address } = useAccount();
-  const [, setRefreshTrigger] = useState(0);
 
-  // Read current auction data
-  const {
-    data: currentAuction,
-    isLoading: auctionLoading,
-    refetch: refetchAuction,
-  } = useReadContract({
-    ...AUCTION_CONTRACT_CONFIG,
-    functionName: "getCurrentAuction",
+  const fetcher = async (url: string) => {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error("Failed to fetch");
+    return res.json();
+  };
+
+  const { data, isLoading, mutate } = useSWR("/api/auction-state", fetcher, {
+    refreshInterval: 0,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    revalidateIfStale: false,
+    keepPreviousData: true,
+    shouldRetryOnError: false,
   });
 
-  const { data: auctionActive } = useReadContract({
+  // Client-side fallbacks for critical reads when SSR fails or is delayed
+  const { data: ownerOnChain } = useReadContract({
     ...AUCTION_CONTRACT_CONFIG,
-    functionName: "auctionActive",
+    functionName: "owner",
+  });
+  const { data: genesisStartedOnChain } = useReadContract({
+    ...AUCTION_CONTRACT_CONFIG,
+    functionName: "genesisStarted",
   });
 
-  const { data: auctionStarted } = useReadContract({
-    ...AUCTION_CONTRACT_CONFIG,
-    functionName: "auctionStarted",
+  const currentAuction: Auction | null = useMemo(() => {
+    if (!data?.currentAuction || !data.auctionActive) return null;
+    return {
+      auctionId: BigInt(data.currentAuction.auctionId),
+      tokenId: BigInt(data.currentAuction.tokenId),
+      startTime: BigInt(data.currentAuction.startTime),
+      endTime: BigInt(data.currentAuction.endTime),
+      highestBidder: data.currentAuction.highestBidder,
+      highestBid: BigInt(data.currentAuction.highestBid),
+      settled: data.currentAuction.settled,
+      exists: data.currentAuction.exists,
+    } as Auction;
+  }, [data]);
+
+  const auctionActive: boolean = Boolean(data?.auctionActive);
+  const canSettleAuction: boolean = Boolean(data?.canSettleAuction);
+  const nextAuctionEarliestStartTime: bigint = BigInt(data?.nextAuctionEarliestStartTime || 0);
+  // const auctionsSinceLastRest: bigint = BigInt(data?.auctionsSinceLastRest || 0);
+  const owner: `0x${string}` | undefined = (data?.owner as `0x${string}` | undefined) ?? ownerOnChain;
+  const genesisStarted: boolean = (data?.genesisStarted as boolean | undefined) ?? Boolean(genesisStartedOnChain);
+
+  const { writeContract, data: txHash, isPending } = useWriteContract();
+  const { isLoading: isConfirming } = useWaitForTransactionReceipt({ hash: txHash });
+
+  useAuctionEvents({
+    onBidPlaced: () => mutate(),
+    onBidRefunded: () => mutate(),
+    onAuctionSettled: () => mutate(),
+    onAuctionStarted: () => mutate(),
+    onRestScheduled: () => mutate(),
+    onAuctionDurationUpdated: () => mutate(),
+    onRestDurationUpdated: () => mutate(),
   });
 
-  const { data: firstAuctionEverStarted } = useReadContract({
-    ...AUCTION_CONTRACT_CONFIG,
-    functionName: "firstAuctionEverStarted",
-  });
+  // no-op: rely on SWR refreshInterval and events; avoid key changes to prevent flicker
 
-  const { data: canClaimNFT } = useReadContract({
-    ...AUCTION_CONTRACT_CONFIG,
-    functionName: "canClaimNFT",
-  });
-
-  const { data: canExpireAuction } = useReadContract({
-    ...AUCTION_CONTRACT_CONFIG,
-    functionName: "canExpireAuction",
-  });
-
-  // Watch for contract events to trigger re-fetching
-  useWatchContractEvent({
-    ...AUCTION_CONTRACT_CONFIG,
-    eventName: "BidPlaced",
-    onLogs() {
-      refetchAuction();
-      setRefreshTrigger((prev) => prev + 1);
-    },
-  });
-
-  useWatchContractEvent({
-    ...AUCTION_CONTRACT_CONFIG,
-    eventName: "AuctionSettled",
-    onLogs() {
-      refetchAuction();
-      setRefreshTrigger((prev) => prev + 1);
-    },
-  });
-
-  useWatchContractEvent({
-    ...AUCTION_CONTRACT_CONFIG,
-    eventName: "AuctionStarted",
-    onLogs() {
-      refetchAuction();
-      setRefreshTrigger((prev) => prev + 1);
-    },
-  });
-
-  // Auto-refresh every 10 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      refetchAuction();
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, [refetchAuction]);
-
-  if (auctionLoading) {
+  if (!data && isLoading) {
     return (
       <div className="max-w-4xl mx-auto">
         <div className="bg-black/30 backdrop-blur-sm rounded-xl p-8 border border-white/10">
@@ -104,40 +96,87 @@ export function AuctionCard() {
     );
   }
 
-  if (!currentAuction || !auctionActive) {
+  if (!auctionActive) {
+    // Dormant pre-genesis
+    if (!genesisStarted) {
+      return (
+        <div className="max-w-4xl mx-auto">
+          <div className="border border-black p-8 text-center bg-white space-y-4">
+            <h2 className="font-mono text-xl font-bold text-black uppercase tracking-widest">Auctions not live yet</h2>
+            <p className="font-mono text-sm text-black">Waiting for the owner to start the genesis auction.</p>
+            <OwnerControls owner={owner} />
+            {owner && address && owner.toLowerCase() === address.toLowerCase() && (
+              <button
+                onClick={async () => {
+                  await writeContract({ ...AUCTION_CONTRACT_CONFIG, functionName: "startNewAuction" });
+                  mutate();
+                }}
+                disabled={isPending || isConfirming}
+                className="mx-auto mt-2 bg-black text-white px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest hover:bg-emerald-700 transition-colors border border-black"
+              >
+                Start Genesis Auction
+              </button>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // Rest scheduled
+    if (nextAuctionEarliestStartTime > BigInt(0)) {
+      return (
+        <div className="max-w-4xl mx-auto">
+          <div className="border border-black p-8 bg-white space-y-6">
+            <RestCountdown readyAt={nextAuctionEarliestStartTime} onReady={() => mutate()} />
+            <button
+              onClick={async () => {
+                await writeContract({ ...AUCTION_CONTRACT_CONFIG, functionName: "beginAuctionAfterRest" });
+                mutate();
+              }}
+              disabled={isPending || isConfirming || Math.floor(Date.now() / 1000) < Number(nextAuctionEarliestStartTime)}
+              className="w-full bg-black text-white py-4 px-6 font-mono text-sm font-bold uppercase tracking-widest hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-black"
+            >
+              Start Next Auction
+            </button>
+            <OwnerControls owner={owner} />
+          </div>
+        </div>
+      );
+    }
+
+    // No active auction, not rest (transition state)
     return (
       <div className="max-w-4xl mx-auto">
         <div className="border border-black p-8 text-center bg-white">
-          <div className="font-mono text-6xl mb-4 text-black">🎨</div>
           <h2 className="font-mono text-xl font-bold text-black uppercase tracking-widest mb-4">No Active Auction</h2>
-          <p className="font-mono text-sm text-black">There&apos;s no auction currently running. Check back soon for the next artwork!</p>
+          <p className="font-mono text-sm text-black">The next auction will start after settlement or rest.</p>
+          <OwnerControls owner={owner} />
         </div>
       </div>
     );
   }
 
+  if (!currentAuction) {
+    return null;
+  }
   const auction = currentAuction as Auction;
   const isWinner = address && auction.highestBidder.toLowerCase() === address.toLowerCase();
-  const auctionEnded = auctionStarted && auction.endTime > BigInt(0) && BigInt(Math.floor(Date.now() / 1000)) >= auction.endTime;
+  const currentTime = BigInt(Math.floor(Date.now() / 1000));
+  const auctionEnded = auction.endTime > BigInt(0) && currentTime >= auction.endTime;
 
   const getAuctionStatus = () => {
-    if (!auctionStarted) {
-      // Check if this is the very first auction ever or just a new auction in the cycle
-      if (!firstAuctionEverStarted) {
-        return { text: "Pending - Awaiting first bid to start auctions", color: "text-blue-400", icon: "🚀" };
-      } else {
-        return { text: "Pending - Awaiting first bid", color: "text-yellow-400", icon: "⏳" };
-      }
+    if (!auctionActive) {
+      return { text: "Auction inactive", color: "text-gray-400" };
     } else if (auctionEnded) {
-      if (isWinner && canClaimNFT) {
-        return { text: "You won! Claim your NFT", color: "text-green-400", icon: "🏆" };
-      } else if (canExpireAuction) {
-        return { text: "Auction expired", color: "text-red-400", icon: "⏰" };
+      if (canSettleAuction) {
+        return { text: "Auction ended. Anyone can settle.", color: "text-orange-400" };
       } else {
-        return { text: "Auction ended", color: "text-red-400", icon: "🔥" };
+        return { text: "Auction ended; awaiting settlement", color: "text-red-400" };
       }
+    } else if (auction.highestBid === BigInt(0)) {
+      return { text: "Awaiting first bid", color: "text-yellow-400" };
     } else {
-      return { text: "Live auction", color: "text-green-400", icon: "🔴" };
+      return { text: "Live auction", color: "text-green-400" };
     }
   };
 
@@ -150,14 +189,17 @@ export function AuctionCard() {
         <div className="flex justify-between items-center mb-6 border-b border-black pb-6">
           <div>
             <h1 className="font-mono text-2xl font-bold text-black uppercase tracking-widest mb-2">Auction #{auction.auctionId.toString()}</h1>
-            <div className={`flex items-center font-mono text-xs uppercase tracking-widest ${status.color === "text-blue-400" ? "text-emerald-700" : status.color === "text-yellow-400" ? "text-black" : status.color === "text-green-400" ? "text-emerald-700" : "text-black"}`}>
-              <span className="mr-2">{status.icon}</span>
+            <div
+              className={`flex items-center font-mono text-xs uppercase tracking-widest ${
+                status.color === "text-yellow-400" ? "text-black" : status.color === "text-green-400" ? "text-emerald-700" : "text-black"
+              }`}
+            >
               {status.text}
             </div>
           </div>
 
           {/* Live indicator */}
-          {!auctionEnded && auctionStarted && (
+          {!auctionEnded && auctionActive && auction.highestBid > BigInt(0) && (
             <div className="flex items-center border border-emerald-700 px-4 py-2 bg-emerald-50">
               <div className="w-2 h-2 bg-emerald-700 rounded-full animate-pulse mr-2"></div>
               <span className="text-emerald-700 font-mono text-xs font-bold uppercase tracking-widest">LIVE</span>
@@ -174,12 +216,7 @@ export function AuctionCard() {
           {/* Right side - Auction Details & Bidding */}
           <div className="space-y-6">
             {/* Countdown Timer */}
-            <CountdownTimer 
-              endTime={auction.endTime} 
-              auctionStarted={Boolean(auctionStarted)} 
-              firstAuctionEverStarted={Boolean(firstAuctionEverStarted)}
-              className="border border-black p-6 bg-white" 
-            />
+            <CountdownTimer startTime={auction.startTime} endTime={auction.endTime} auctionActive={Boolean(auctionActive)} className="border border-black p-6 bg-white" />
 
             {/* Current Bid Info */}
             <div className="border border-black p-6 bg-white">
@@ -198,18 +235,10 @@ export function AuctionCard() {
                   <div className="font-mono text-xs text-black">Be the first to bid and start the auction!</div>
                 </div>
               )}
-            </div>
-
-            {/* Auction Stats */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="border border-emerald-200 p-4 bg-emerald-50">
-                <div className="font-mono text-xs text-black mb-1 uppercase tracking-widest">Token ID</div>
-                <div className="font-mono text-xl font-bold text-black">#{auction.tokenId.toString()}</div>
-              </div>
-              <div className="border border-emerald-200 p-4 bg-emerald-50">
-                <div className="font-mono text-xs text-black mb-1 uppercase tracking-widest">Auction ID</div>
-                <div className="font-mono text-xl font-bold text-black">#{auction.auctionId.toString()}</div>
-              </div>
+              {/* Initial highest bidder (0) notice */}
+              {!auctionEnded && auction.highestBid === BigInt(0) && isWinner && (
+                <div className="mt-4 p-3 border border-emerald-200 bg-emerald-50 font-mono text-xs text-emerald-700">You’re currently highest at 0. Any bid will outbid you.</div>
+              )}
             </div>
 
             {/* Bidding Form */}
@@ -217,23 +246,10 @@ export function AuctionCard() {
               currentBid={auction.highestBid}
               auctionActive={Boolean(auctionActive)}
               auctionEnded={Boolean(auctionEnded)}
-              auctionStarted={Boolean(auctionStarted)}
-              firstAuctionEverStarted={Boolean(firstAuctionEverStarted)}
               isWinner={Boolean(isWinner)}
-              canClaim={Boolean(canClaimNFT)}
-              canExpire={Boolean(canExpireAuction)}
-              onBidSuccess={() => {
-                refetchAuction();
-                setRefreshTrigger((prev) => prev + 1);
-              }}
-              onClaimSuccess={() => {
-                refetchAuction();
-                setRefreshTrigger((prev) => prev + 1);
-              }}
-              onExpireSuccess={() => {
-                refetchAuction();
-                setRefreshTrigger((prev) => prev + 1);
-              }}
+              canSettle={Boolean(canSettleAuction)}
+              onBidSuccess={() => mutate()}
+              onSettleSuccess={() => mutate()}
             />
           </div>
         </div>

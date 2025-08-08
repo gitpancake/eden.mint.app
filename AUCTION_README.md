@@ -32,6 +32,32 @@ A modern, responsive Next.js frontend for a rolling NFT auction system built wit
 - **wagmi** for Ethereum interactions
 - **viem** for low-level Ethereum utilities
 - **RainbowKit** for wallet connections
+- **SWR** for server-side data fetching and caching
+
+## ⚙️ Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
+
+```env
+# RPC URL for Base Sepolia
+NEXT_PUBLIC_RPC_URL=https://base-sepolia.g.allthatnode.com/archive/evm/7240935353c842e89d9a3d159d1fba64
+
+# Auction Contract Address
+NEXT_PUBLIC_AUCTION_CONTRACT_ADDRESS=0xE000F263b1EF8E434Cd7191Abb2aF9ba6918DD50
+
+# WalletConnect Project ID (get from https://cloud.walletconnect.com/)
+NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_wallet_connect_project_id_here
+
+# NFT Base URI (optional, defaults to current domain)
+NEXT_PUBLIC_NFT_BASE_URI=
+```
+
+### Environment Variable Details
+
+- `NEXT_PUBLIC_RPC_URL`: Base Sepolia RPC endpoint URL (used for all contract interactions)
+- `NEXT_PUBLIC_AUCTION_CONTRACT_ADDRESS`: The deployed auction contract address
+- `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID`: Your WalletConnect project ID for wallet connections
+- `NEXT_PUBLIC_NFT_BASE_URI`: Base URI for NFT metadata (optional)
 
 ## 📁 Project Structure
 
@@ -123,11 +149,11 @@ npm run build
 
 ## 🎨 How Rolling Auctions Work
 
-1. **Continuous Auctions**: New auctions start immediately after the previous one ends
-2. **Timer Activation**: The 5-minute countdown begins when the first bid is placed
+1. **Fixed Duration**: All auctions run for exactly 15 minutes from start time
+2. **Automatic Settlement**: Auctions automatically settle when expired, starting new ones
 3. **Automatic Refunds**: Previous bidders are automatically refunded when outbid
-4. **Winner Claims**: Winners must claim their NFT to mint it and trigger the next auction
-5. **Expiration Handling**: Auctions with no bids can be expired after the block cycle
+4. **Winner Claims**: Winners can claim their NFT at any time after auction ends
+5. **Seamless Transitions**: New auctions begin automatically after previous ones settle
 
 ## 🔧 Key Components
 

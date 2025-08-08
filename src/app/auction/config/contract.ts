@@ -3,151 +3,22 @@ export const AUCTION_CONTRACT_ABI = [
     inputs: [
       { internalType: "string", name: "name", type: "string" },
       { internalType: "string", name: "symbol", type: "string" },
-      { internalType: "uint256", name: "_blockCycleDuration", type: "uint256" },
-      { internalType: "uint256", name: "_auctionDuration", type: "uint256" },
       { internalType: "string", name: "baseURI", type: "string" },
+      { internalType: "address", name: "_payoutAddress", type: "address" },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
   },
-  {
-    inputs: [],
-    name: "AuctionAlreadySettled",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AuctionNotActive",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AuctionNotEnded",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AuctionStillActive",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BidTooLow",
-    type: "error",
-  },
-  {
-    inputs: [
-      { internalType: "address", name: "sender", type: "address" },
-      { internalType: "uint256", name: "tokenId", type: "uint256" },
-      { internalType: "address", name: "owner", type: "address" },
-    ],
-    name: "ERC721IncorrectOwner",
-    type: "error",
-  },
-  {
-    inputs: [
-      { internalType: "address", name: "operator", type: "address" },
-      { internalType: "uint256", name: "tokenId", type: "uint256" },
-    ],
-    name: "ERC721InsufficientApproval",
-    type: "error",
-  },
-  {
-    inputs: [{ internalType: "address", name: "approver", type: "address" }],
-    name: "ERC721InvalidApprover",
-    type: "error",
-  },
-  {
-    inputs: [{ internalType: "address", name: "operator", type: "address" }],
-    name: "ERC721InvalidOperator",
-    type: "error",
-  },
-  {
-    inputs: [{ internalType: "address", name: "owner", type: "address" }],
-    name: "ERC721InvalidOwner",
-    type: "error",
-  },
-  {
-    inputs: [{ internalType: "address", name: "receiver", type: "address" }],
-    name: "ERC721InvalidReceiver",
-    type: "error",
-  },
-  {
-    inputs: [{ internalType: "address", name: "sender", type: "address" }],
-    name: "ERC721InvalidSender",
-    type: "error",
-  },
-  {
-    inputs: [{ internalType: "uint256", name: "tokenId", type: "uint256" }],
-    name: "ERC721NonexistentToken",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "InvalidAuctionDuration",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "InvalidBlockCycle",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "NotWinner",
-    type: "error",
-  },
-  {
-    inputs: [{ internalType: "address", name: "owner", type: "address" }],
-    name: "OwnableInvalidOwner",
-    type: "error",
-  },
-  {
-    inputs: [{ internalType: "address", name: "account", type: "address" }],
-    name: "OwnableUnauthorizedAccount",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "ReentrancyGuardReentrantCall",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "TransferFailed",
-    type: "error",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: "address", name: "owner", type: "address" },
-      { indexed: true, internalType: "address", name: "approved", type: "address" },
-      { indexed: true, internalType: "uint256", name: "tokenId", type: "uint256" },
-    ],
-    name: "Approval",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: "address", name: "owner", type: "address" },
-      { indexed: true, internalType: "address", name: "operator", type: "address" },
-      { indexed: false, internalType: "bool", name: "approved", type: "bool" },
-    ],
-    name: "ApprovalForAll",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: "uint256", name: "auctionId", type: "uint256" },
-      { indexed: true, internalType: "address", name: "winner", type: "address" },
-      { indexed: false, internalType: "uint256", name: "amount", type: "uint256" },
-      { indexed: true, internalType: "uint256", name: "tokenId", type: "uint256" },
-    ],
-    name: "AuctionSettled",
-    type: "event",
-  },
+  { inputs: [], name: "AuctionAlreadySettled", type: "error" },
+  { inputs: [], name: "AuctionNotActive", type: "error" },
+  { inputs: [], name: "AuctionNotEnded", type: "error" },
+  { inputs: [], name: "AuctionStillActive", type: "error" },
+  { inputs: [], name: "BidTooLow", type: "error" },
+  { inputs: [], name: "InvalidAuctionDuration", type: "error" },
+  { inputs: [], name: "InvalidPayoutAddress", type: "error" },
+  { inputs: [], name: "NotWinner", type: "error" },
+  { inputs: [], name: "ReentrancyGuardReentrantCall", type: "error" },
+  { inputs: [], name: "TransferFailed", type: "error" },
   {
     anonymous: false,
     inputs: [
@@ -156,15 +27,6 @@ export const AUCTION_CONTRACT_ABI = [
       { indexed: false, internalType: "uint256", name: "endTime", type: "uint256" },
     ],
     name: "AuctionStarted",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: false, internalType: "uint256", name: "_fromTokenId", type: "uint256" },
-      { indexed: false, internalType: "uint256", name: "_toTokenId", type: "uint256" },
-    ],
-    name: "BatchMetadataUpdate",
     type: "event",
   },
   {
@@ -189,18 +51,31 @@ export const AUCTION_CONTRACT_ABI = [
   },
   {
     anonymous: false,
-    inputs: [{ indexed: false, internalType: "uint256", name: "_tokenId", type: "uint256" }],
-    name: "MetadataUpdate",
+    inputs: [
+      { indexed: true, internalType: "uint256", name: "auctionId", type: "uint256" },
+      { indexed: true, internalType: "address", name: "winner", type: "address" },
+      { indexed: false, internalType: "uint256", name: "amount", type: "uint256" },
+      { indexed: true, internalType: "uint256", name: "tokenId", type: "uint256" },
+    ],
+    name: "AuctionSettled",
     type: "event",
   },
   {
     anonymous: false,
-    inputs: [
-      { indexed: true, internalType: "uint256", name: "auctionId", type: "uint256" },
-      { indexed: true, internalType: "uint256", name: "tokenId", type: "uint256" },
-      { indexed: false, internalType: "uint256", name: "startTime", type: "uint256" },
-    ],
-    name: "NewAuctionScheduled",
+    inputs: [{ indexed: false, internalType: "uint256", name: "newDuration", type: "uint256" }],
+    name: "AuctionDurationUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [{ indexed: false, internalType: "uint256", name: "newDuration", type: "uint256" }],
+    name: "RestDurationUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [{ indexed: false, internalType: "uint256", name: "nextAuctionEarliestStartTime", type: "uint256" }],
+    name: "RestScheduled",
     type: "event",
   },
   {
@@ -213,36 +88,9 @@ export const AUCTION_CONTRACT_ABI = [
     type: "event",
   },
   {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: "address", name: "from", type: "address" },
-      { indexed: true, internalType: "address", name: "to", type: "address" },
-      { indexed: true, internalType: "uint256", name: "tokenId", type: "uint256" },
-    ],
-    name: "Transfer",
-    type: "event",
-  },
-  {
     inputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     name: "allAuctionIds",
     outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      { internalType: "address", name: "to", type: "address" },
-      { internalType: "uint256", name: "tokenId", type: "uint256" },
-    ],
-    name: "approve",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "auctionActive",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
     stateMutability: "view",
     type: "function",
   },
@@ -262,29 +110,15 @@ export const AUCTION_CONTRACT_ABI = [
   },
   {
     inputs: [],
+    name: "auctionActive",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "auctionDuration",
     outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "auctionStarted",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "firstAuctionEverStarted",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "payoutAddress",
-    outputs: [{ internalType: "address", name: "", type: "address" }],
     stateMutability: "view",
     type: "function",
   },
@@ -305,6 +139,13 @@ export const AUCTION_CONTRACT_ABI = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "auctionsSinceLastRest",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [{ internalType: "address", name: "owner", type: "address" }],
     name: "balanceOf",
     outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
@@ -320,13 +161,6 @@ export const AUCTION_CONTRACT_ABI = [
   },
   {
     inputs: [],
-    name: "blockCycleDuration",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "canClaimNFT",
     outputs: [{ internalType: "bool", name: "", type: "bool" }],
     stateMutability: "view",
@@ -334,7 +168,7 @@ export const AUCTION_CONTRACT_ABI = [
   },
   {
     inputs: [],
-    name: "canExpireAuction",
+    name: "canSettleAuction",
     outputs: [{ internalType: "bool", name: "", type: "bool" }],
     stateMutability: "view",
     type: "function",
@@ -342,6 +176,13 @@ export const AUCTION_CONTRACT_ABI = [
   {
     inputs: [],
     name: "claimNFT",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "uint256", name: "auctionId", type: "uint256" }],
+    name: "claimNFTByAuctionId",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -355,9 +196,9 @@ export const AUCTION_CONTRACT_ABI = [
   },
   {
     inputs: [],
-    name: "expireAuction",
-    outputs: [],
-    stateMutability: "nonpayable",
+    name: "genesisStarted",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -416,25 +257,8 @@ export const AUCTION_CONTRACT_ABI = [
     type: "function",
   },
   {
-    inputs: [
-      { internalType: "address", name: "owner", type: "address" },
-      { internalType: "address", name: "operator", type: "address" },
-    ],
-    name: "isApprovedForAll",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [],
-    name: "name",
-    outputs: [{ internalType: "string", name: "", type: "string" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "nextAuctionTime",
+    name: "nextAuctionEarliestStartTime",
     outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     stateMutability: "view",
     type: "function",
@@ -455,9 +279,23 @@ export const AUCTION_CONTRACT_ABI = [
   },
   {
     inputs: [],
+    name: "payoutAddress",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "placeBid",
     outputs: [],
     stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "beginAuctionAfterRest",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -496,6 +334,13 @@ export const AUCTION_CONTRACT_ABI = [
       { internalType: "bool", name: "approved", type: "bool" },
     ],
     name: "setApprovalForAll",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "settleAuction",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -547,13 +392,6 @@ export const AUCTION_CONTRACT_ABI = [
     type: "function",
   },
   {
-    inputs: [{ internalType: "uint256", name: "newAuctionDuration", type: "uint256" }],
-    name: "updateAuctionDuration",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [{ internalType: "string", name: "newBaseTokenURI", type: "string" }],
     name: "updateBaseTokenURI",
     outputs: [],
@@ -561,8 +399,15 @@ export const AUCTION_CONTRACT_ABI = [
     type: "function",
   },
   {
-    inputs: [{ internalType: "uint256", name: "newBlockCycleDuration", type: "uint256" }],
-    name: "updateBlockCycleDuration",
+    inputs: [{ internalType: "uint256", name: "newDuration", type: "uint256" }],
+    name: "updateAuctionDuration",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "uint256", name: "newDuration", type: "uint256" }],
+    name: "updateRestDuration",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -575,31 +420,36 @@ export const AUCTION_CONTRACT_ABI = [
     type: "function",
   },
   {
-    stateMutability: "payable",
-    type: "receive",
+    inputs: [],
+    name: "restDuration",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
   },
+  { stateMutability: "payable", type: "receive" },
 ] as const;
 
 // Contract configuration
 export const AUCTION_CONTRACT_CONFIG = {
-  address: process.env.NEXT_PUBLIC_AUCTION_CONTRACT_ADDRESS as `0x${string}`,
+  address: (process.env.NEXT_PUBLIC_AUCTION_CONTRACT_ADDRESS as `0x${string}`) || "0x",
   abi: AUCTION_CONTRACT_ABI,
 } as const;
 
-// Types
+// Auction type based on the new contract structure
 export interface Auction {
   auctionId: bigint;
   tokenId: bigint;
   startTime: bigint;
   endTime: bigint;
-  highestBidder: string;
+  highestBidder: `0x${string}`;
   highestBid: bigint;
   settled: boolean;
   exists: boolean;
 }
 
+// Bid type
 export interface Bid {
-  bidder: string;
+  bidder: `0x${string}`;
   amount: bigint;
   timestamp: bigint;
 }

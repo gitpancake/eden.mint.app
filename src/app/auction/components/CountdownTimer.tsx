@@ -3,29 +3,33 @@
 import { useEffect, useState } from "react";
 
 interface CountdownTimerProps {
+  startTime: bigint;
   endTime: bigint;
-  auctionStarted: boolean;
-  firstAuctionEverStarted?: boolean;
+  auctionActive: boolean;
   className?: string;
 }
 
-export function CountdownTimer({ endTime, auctionStarted, firstAuctionEverStarted = false, className = "" }: CountdownTimerProps) {
+export function CountdownTimer({ startTime, endTime, auctionActive, className = "" }: CountdownTimerProps) {
   const [timeLeft, setTimeLeft] = useState<{
     minutes: number;
     seconds: number;
     total: number;
   }>({ minutes: 0, seconds: 0, total: 0 });
+  const [totalDuration, setTotalDuration] = useState<number>(0);
 
   useEffect(() => {
     const updateTimer = () => {
-      if (!auctionStarted || endTime === BigInt(0)) {
+      if (!auctionActive || endTime === BigInt(0)) {
         setTimeLeft({ minutes: 0, seconds: 0, total: 0 });
         return;
       }
 
       const now = Math.floor(Date.now() / 1000);
       const endTimeSeconds = Number(endTime);
+      const startTimeSeconds = Number(startTime);
       const difference = endTimeSeconds - now;
+      const duration = Math.max(0, endTimeSeconds - startTimeSeconds);
+      setTotalDuration(duration);
 
       if (difference > 0) {
         const minutes = Math.floor(difference / 60);
@@ -40,22 +44,13 @@ export function CountdownTimer({ endTime, auctionStarted, firstAuctionEverStarte
     const interval = setInterval(updateTimer, 1000);
 
     return () => clearInterval(interval);
-  }, [endTime, auctionStarted]);
+  }, [startTime, endTime, auctionActive]);
 
-  if (!auctionStarted) {
+  if (!auctionActive) {
     return (
       <div className={`text-center ${className}`}>
-        {!firstAuctionEverStarted ? (
-          <>
-            <div className="font-mono text-2xl font-bold text-emerald-700 uppercase tracking-widest">🚀 Ready to Launch</div>
-            <div className="font-mono text-xs text-black mt-1 uppercase tracking-wide">First bid ever will start the auction system</div>
-          </>
-        ) : (
-          <>
-            <div className="font-mono text-2xl font-bold text-black uppercase tracking-widest">⏳ Waiting for first bid</div>
-            <div className="font-mono text-xs text-black mt-1 uppercase tracking-wide">First bid starts the 5-minute timer</div>
-          </>
-        )}
+        <div className="font-mono text-2xl font-bold text-gray-400 uppercase tracking-widest">⏸️ Auction Inactive</div>
+        <div className="font-mono text-xs text-black mt-1 uppercase tracking-wide">Waiting for auction to become active</div>
       </div>
     );
   }
@@ -64,7 +59,7 @@ export function CountdownTimer({ endTime, auctionStarted, firstAuctionEverStarte
     return (
       <div className={`text-center ${className}`}>
         <div className="font-mono text-2xl font-bold text-black uppercase tracking-widest">🔥 Auction Ended</div>
-        <div className="font-mono text-xs text-black mt-1 uppercase tracking-wide">Winner can claim their NFT</div>
+        <div className="font-mono text-xs text-black mt-1 uppercase tracking-wide">Anyone can settle now</div>
       </div>
     );
   }
@@ -83,7 +78,7 @@ export function CountdownTimer({ endTime, auctionStarted, firstAuctionEverStarte
       <div className="w-full border border-black h-2 mt-3 bg-white">
         <div
           className={`h-full transition-all duration-1000 ${isCritical ? "bg-black" : isUrgent ? "bg-black" : "bg-emerald-700"}`}
-          style={{ width: `${Math.min(100, (timeLeft.total / 300) * 100)}%` }}
+          style={{ width: `${totalDuration > 0 ? Math.min(100, (timeLeft.total / totalDuration) * 100) : 0}%` }}
         />
       </div>
     </div>

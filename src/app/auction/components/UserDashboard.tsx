@@ -1,11 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import useSWR from "swr";
 import { formatEther } from "viem";
-import { useAccount, useBalance, useReadContract } from "wagmi";
-import { AUCTION_CONTRACT_CONFIG } from "../config/contract";
+import { useAccount } from "wagmi";
 
-interface UserNFT {
+// Types for server response
+interface ServerUserNFT {
+  tokenId: string;
+  name: string;
+  image: string;
+  auctionId: string;
+  winningBid: string; // BigInt as string from server
+}
+
+interface UserDashboardResponse {
+  userAddress: string;
+  balance: {
+    value: string;
+    formatted: string;
+    symbol: string;
+  };
+  nftBalance: string;
+  userNFTs: ServerUserNFT[];
+}
+
+// Client-side types (with BigInt)
+interface ClientUserNFT {
   tokenId: number;
   name: string;
   image: string;
@@ -13,60 +34,49 @@ interface UserNFT {
   winningBid: bigint;
 }
 
+// Fetcher function for SWR
+const fetcher = async (url: string): Promise<UserDashboardResponse> => {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error("Failed to fetch dashboard data");
+  }
+  return response.json();
+};
+
 export function UserDashboard() {
   const { address, isConnected } = useAccount();
-  const [userNFTs, setUserNFTs] = useState<UserNFT[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Get user's ETH balance
-  const { data: balance } = useBalance({
-    address,
+  // Use SWR for server-side data fetching with caching
+  const {
+    data: serverData,
+    error,
+    isLoading: loading,
+  } = useSWR<UserDashboardResponse>(address ? `/api/user-dashboard?address=${address}&refresh=${refreshTrigger}` : null, fetcher, {
+    refreshInterval: 30000, // Refresh every 30 seconds
+    revalidateOnFocus: false,
+    revalidateOnReconnect: true,
   });
 
-  // Get user's NFT balance
-  const { data: nftBalance } = useReadContract({
-    ...AUCTION_CONTRACT_CONFIG,
-    functionName: "balanceOf",
-    args: address ? [address] : undefined,
-  });
+  // Convert server data to client data
+  const balance = serverData
+    ? {
+        value: BigInt(serverData.balance.value),
+        formatted: serverData.balance.formatted,
+        symbol: serverData.balance.symbol,
+      }
+    : null;
 
-  // Get current auction info to check if user is current highest bidder
-  const { data: currentAuction } = useReadContract({
-    ...AUCTION_CONTRACT_CONFIG,
-    functionName: "getCurrentAuction",
-  });
+  const nftBalance = serverData ? BigInt(serverData.nftBalance) : BigInt(0);
 
-  const { data: canClaimNFT } = useReadContract({
-    ...AUCTION_CONTRACT_CONFIG,
-    functionName: "canClaimNFT",
-  });
-
-  useEffect(() => {
-    // In a real implementation, you would:
-    // 1. Query the contract for tokens owned by the user
-    // 2. Fetch metadata for each token
-    // 3. Match tokens to their winning auctions
-
-    // For now, we'll simulate some data
-    const mockUserNFTs: UserNFT[] = [
-      {
-        tokenId: 1,
-        name: "Threshold Portrait",
-        image: "https://d14i3advvh2bvd.cloudfront.net/b5f221c09779718dec0034605c0fb76374538a01cc3ee9161f8fb03a0f7007b1.png",
-        auctionId: 1,
-        winningBid: BigInt("500000000000000000"), // 0.5 ETH
-      },
-    ];
-
-    // Only show NFTs if user actually has some
-    if (nftBalance && nftBalance > BigInt(0)) {
-      setUserNFTs(mockUserNFTs.slice(0, Number(nftBalance)));
-    } else {
-      setUserNFTs([]);
-    }
-
-    setLoading(false);
-  }, [nftBalance]);
+  const userNFTs: ClientUserNFT[] =
+    serverData?.userNFTs.map((nft) => ({
+      tokenId: parseInt(nft.tokenId),
+      name: nft.name,
+      image: nft.image,
+      auctionId: parseInt(nft.auctionId),
+      winningBid: BigInt(nft.winningBid),
+    })) || [];
 
   if (!isConnected) {
     return (
@@ -80,7 +90,45 @@ export function UserDashboard() {
     );
   }
 
-  const isCurrentHighestBidder = currentAuction && address && currentAuction.highestBidder.toLowerCase() === address.toLowerCase();
+  if (error) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <div className="border border-black p-8 bg-white text-center">
+          <div className="text-6xl mb-4">⚠️</div>
+          <h2 className="font-mono text-2xl font-bold text-black uppercase tracking-widest mb-4">Error Loading Dashboard</h2>
+          <p className="font-mono text-sm text-black">Failed to fetch dashboard data from the server.</p>
+          <p className="font-mono text-xs text-black mt-2">{error instanceof Error ? error.message : "Unknown error"}</p>
+          <button
+            onClick={() => setRefreshTrigger((prev) => prev + 1)}
+            className="mt-4 bg-black text-white px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest hover:bg-emerald-700 transition-colors border border-black"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-8">
+        {/* Loading skeleton */}
+        <div className="border border-black p-8 bg-white">
+          <div className="animate-pulse">
+            <div className="h-8 border border-emerald-200 bg-emerald-50 w-1/3 mb-6"></div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="border border-emerald-200 bg-emerald-50 p-6">
+                  <div className="h-4 border border-emerald-200 bg-emerald-50 w-1/2 mb-2"></div>
+                  <div className="h-8 border border-emerald-200 bg-emerald-50 w-3/4"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -88,11 +136,11 @@ export function UserDashboard() {
       <div className="border border-black p-8 bg-white">
         <h2 className="font-mono text-2xl font-bold text-black uppercase tracking-widest mb-6">Account Overview</h2>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 gap-6">
           {/* ETH Balance */}
           <div className="border border-emerald-200 bg-emerald-50 p-6">
             <div className="font-mono text-xs text-black mb-2 uppercase tracking-wide">ETH Balance</div>
-            <div className="font-mono text-2xl font-bold text-black">{balance ? formatEther(balance.value) : "0.00"} ETH</div>
+            <div className="font-mono text-2xl font-bold text-black">{balance ? parseFloat(formatEther(balance.value)).toFixed(2) : "0.00"} ETH</div>
             <div className="font-mono text-xs text-black mt-1">
               {balance?.formatted} {balance?.symbol}
             </div>
@@ -104,59 +152,8 @@ export function UserDashboard() {
             <div className="font-mono text-2xl font-bold text-black">{nftBalance?.toString() || "0"}</div>
             <div className="font-mono text-xs text-black mt-1">Auction NFTs</div>
           </div>
-
-          {/* Current Status */}
-          <div className="border border-emerald-200 bg-emerald-50 p-6">
-            <div className="font-mono text-xs text-black mb-2 uppercase tracking-wide">Current Status</div>
-            <div className="font-mono text-lg font-bold">
-              {canClaimNFT ? (
-                <span className="text-emerald-700">🏆 Can Claim NFT</span>
-              ) : isCurrentHighestBidder ? (
-                <span className="text-black">🔥 Highest Bidder</span>
-              ) : (
-                <span className="text-black">👀 Watching</span>
-              )}
-            </div>
-          </div>
         </div>
       </div>
-
-      {/* Current Auction Status */}
-      {(isCurrentHighestBidder || canClaimNFT) && (
-        <div className="border border-black p-8 bg-white">
-          <h3 className="font-mono text-xl font-bold text-black uppercase tracking-widest mb-4">🎯 Active Participation</h3>
-
-          {canClaimNFT && (
-            <div className="border border-emerald-200 bg-emerald-50 p-4 mb-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-mono text-sm font-bold text-emerald-700 uppercase tracking-wide">🏆 You Won!</div>
-                  <div className="font-mono text-xs text-black mt-1">You can claim your NFT from the current auction</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-mono text-lg font-bold text-emerald-700">{currentAuction ? formatEther(currentAuction.highestBid) : "0"} ETH</div>
-                  <div className="font-mono text-xs text-black">Winning bid</div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {isCurrentHighestBidder && !canClaimNFT && (
-            <div className="border border-black bg-white p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-mono text-sm font-bold text-black uppercase tracking-wide">🔥 Highest Bidder</div>
-                  <div className="font-mono text-xs text-black mt-1">You&apos;re currently winning the auction!</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-mono text-lg font-bold text-black">{currentAuction ? formatEther(currentAuction.highestBid) : "0"} ETH</div>
-                  <div className="font-mono text-xs text-black">Your bid</div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Owned NFTs */}
       <div className="border border-black p-8 bg-white">
