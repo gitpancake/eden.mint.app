@@ -133,12 +133,12 @@ export function UserDashboard() {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto space-y-8">
-        {/* Loading skeleton */}
+        {/* Account overview skeleton */}
         <div className="border border-black p-8 bg-white">
           <div className="animate-pulse">
             <div className="h-8 border border-emerald-200 bg-emerald-50 w-1/3 mb-6"></div>
-            <div className="grid md:grid-cols-3 gap-6">
-              {[...Array(3)].map((_, i) => (
+            <div className="grid md:grid-cols-2 gap-6">
+              {[...Array(2)].map((_, i) => (
                 <div key={i} className="border border-emerald-200 bg-emerald-50 p-6">
                   <div className="h-4 border border-emerald-200 bg-emerald-50 w-1/2 mb-2"></div>
                   <div className="h-8 border border-emerald-200 bg-emerald-50 w-3/4"></div>
@@ -146,6 +146,28 @@ export function UserDashboard() {
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Owned NFTs skeleton */}
+        <div className="border border-black p-8 bg-white">
+          <div className="h-6 border border-emerald-200 bg-emerald-50 w-1/2 mb-6 animate-pulse"></div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="border border-emerald-200 bg-emerald-50 p-6 animate-pulse">
+                <div className="aspect-square border border-emerald-200 bg-emerald-50 mb-4"></div>
+                <div className="h-4 border border-emerald-200 bg-emerald-50 mb-2"></div>
+                <div className="h-3 border border-emerald-200 bg-emerald-50 w-2/3"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Recent activity skeleton */}
+        <div className="border border-black p-8 bg-white">
+          <div className="h-6 border border-emerald-200 bg-emerald-50 w-1/3 mb-4 animate-pulse"></div>
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-10 border border-emerald-200 bg-emerald-50 mb-2 animate-pulse"></div>
+          ))}
         </div>
       </div>
     );

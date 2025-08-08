@@ -79,15 +79,15 @@ export function AuctionCard() {
   if (!data && isLoading) {
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="bg-black/30 backdrop-blur-sm rounded-xl p-8 border border-white/10">
+        <div className="border border-black p-8 bg-white">
           <div className="animate-pulse">
             <div className="grid md:grid-cols-2 gap-8">
-              <div className="aspect-square bg-gray-700 rounded-lg"></div>
+              <div className="aspect-square border border-emerald-200 bg-emerald-50" />
               <div className="space-y-4">
-                <div className="h-8 bg-gray-700 rounded w-3/4"></div>
-                <div className="h-4 bg-gray-700 rounded w-1/2"></div>
-                <div className="h-20 bg-gray-700 rounded"></div>
-                <div className="h-12 bg-gray-700 rounded"></div>
+                <div className="h-8 border border-emerald-200 bg-emerald-50 w-3/4" />
+                <div className="h-4 border border-emerald-200 bg-emerald-50 w-1/2" />
+                <div className="h-20 border border-emerald-200 bg-emerald-50" />
+                <div className="h-12 border border-emerald-200 bg-emerald-50" />
               </div>
             </div>
           </div>
