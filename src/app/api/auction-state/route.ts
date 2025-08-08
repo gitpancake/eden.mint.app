@@ -31,6 +31,7 @@ export async function GET() {
       payoutAddress,
       owner,
       genesisStarted,
+      restInterval,
     ] = await Promise.all([
       readContract(client, {
         address: AUCTION_CONTRACT_CONFIG.address,
@@ -101,6 +102,11 @@ export async function GET() {
         abi: AUCTION_CONTRACT_CONFIG.abi,
         functionName: "genesisStarted",
       }) as Promise<boolean>,
+      readContract(client, {
+        address: AUCTION_CONTRACT_CONFIG.address,
+        abi: AUCTION_CONTRACT_CONFIG.abi,
+        functionName: "REST_INTERVAL",
+      }) as Promise<bigint>,
     ]);
 
     const { auctionId, tokenId, startTime, endTime, highestBidder, highestBid, settled, exists } = currentAuction;
@@ -127,6 +133,7 @@ export async function GET() {
       payoutAddress,
       owner,
       genesisStarted,
+      restInterval: restInterval.toString(),
     });
   } catch (error) {
     console.error("Error fetching auction state:", error);

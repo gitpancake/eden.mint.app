@@ -36,7 +36,8 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, isWinner, can
 
     try {
       setIsSubmitting(true);
-      const bidValue = parseEther(bidAmount);
+      const normalizedAmount = bidAmount.replace(",", ".");
+      const bidValue = parseEther(normalizedAmount);
 
       if (bidValue <= currentBid) {
         alert(`Bid must be higher than ${formatEther(currentBid)} ETH`);
@@ -145,14 +146,21 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, isWinner, can
 
         <div className="relative">
           <input
-            type="number"
-            step="0.001"
-            min={minBidFormatted}
+            type="text"
+            inputMode="decimal"
+            pattern="[0-9]*[.,]?[0-9]*"
             value={bidAmount}
-            onChange={(e) => setBidAmount(e.target.value)}
+            onChange={(e) => {
+              const next = e.target.value.replace(/[^0-9.,]/g, "");
+              // Prevent more than one decimal separator
+              const parts = next.split(/[.,]/);
+              const sanitized = parts.length > 2 ? parts[0] + "." + parts.slice(1).join("") : next;
+              setBidAmount(sanitized);
+            }}
             placeholder={`Minimum ${minBidFormatted} ETH`}
             className="w-full bg-white border border-black px-4 py-3 font-mono text-black placeholder-gray-500 focus:border-emerald-700 focus:outline-none"
             disabled={isSubmitting || isPending || isConfirming}
+            aria-label="Your bid in ETH"
           />
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2 font-mono text-xs text-black">ETH</div>
         </div>

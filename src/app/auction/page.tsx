@@ -70,23 +70,23 @@ export default function AuctionPage() {
 
         {/* Info Banner */}
         <div className="mt-12 border border-black p-6">
-          <h3 className="font-mono text-lg font-bold text-black uppercase tracking-widest mb-6">How Rolling Auctions Work</h3>
+          <h3 className="font-mono text-lg font-bold text-black uppercase tracking-widest mb-6">How Auctions Work</h3>
           <div className="grid md:grid-cols-4 gap-6">
             <div className="border border-emerald-200 p-4 bg-emerald-50">
-              <div className="font-mono text-xs font-bold text-black uppercase tracking-widest mb-2">1. Pending State</div>
-              <p className="font-mono text-xs text-black">Each auction waits for its first bid before the timer starts.</p>
+              <div className="font-mono text-xs font-bold text-black uppercase tracking-widest mb-2">1. Continuous Flow</div>
+              <p className="font-mono text-xs text-black">Auctions run back-to-back. When one ends and is settled, the next begins automatically unless a scheduled rest is due.</p>
             </div>
             <div className="border border-emerald-200 p-4 bg-emerald-50">
-              <div className="font-mono text-xs font-bold text-black uppercase tracking-widest mb-2">2. First Bid Starts Timer</div>
-              <p className="font-mono text-xs text-black">The 5-minute countdown begins when the first bid is placed.</p>
+              <div className="font-mono text-xs font-bold text-black uppercase tracking-widest mb-2">2. Refundable Bids</div>
+              <p className="font-mono text-xs text-black">Outbid bids are automatically refunded by the contract. Funds are never stuck between bids.</p>
             </div>
             <div className="border border-emerald-200 p-4 bg-emerald-50">
-              <div className="font-mono text-xs font-bold text-black uppercase tracking-widest mb-2">3. Automatic Refunds</div>
-              <p className="font-mono text-xs text-black">Previous bidders are automatically refunded when outbid.</p>
+              <div className="font-mono text-xs font-bold text-black uppercase tracking-widest mb-2">3. Settlement & Mint</div>
+              <p className="font-mono text-xs text-black">Once the timer ends, anyone can settle. Settlement mints the NFT to the winner and sends proceeds to the payout address.</p>
             </div>
             <div className="border border-emerald-200 p-4 bg-emerald-50">
-              <div className="font-mono text-xs font-bold text-black uppercase tracking-widest mb-2">4. Claim & Continue</div>
-              <p className="font-mono text-xs text-black">Winners claim their NFT and the next auction begins.</p>
+              <div className="font-mono text-xs font-bold text-black uppercase tracking-widest mb-2">4. Rest Windows</div>
+              <p className="font-mono text-xs text-black">After several auctions, a rest is scheduled. When the rest time elapses, anyone can start the next auction and becomes initial highest bidder at 0.</p>
             </div>
           </div>
         </div>

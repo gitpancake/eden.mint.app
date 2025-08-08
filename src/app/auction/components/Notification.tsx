@@ -27,35 +27,8 @@ export function Notification({ type, title, message, duration = 5000, onClose }:
     return () => clearTimeout(timer);
   }, [duration, onClose]);
 
-  const getIcon = () => {
-    switch (type) {
-      case "success":
-        return "✅";
-      case "error":
-        return "❌";
-      case "warning":
-        return "⚠️";
-      case "info":
-        return "ℹ️";
-      default:
-        return "ℹ️";
-    }
-  };
-
-  const getColors = () => {
-    switch (type) {
-      case "success":
-        return "bg-green-500/20 border-green-500/30 text-green-400";
-      case "error":
-        return "bg-red-500/20 border-red-500/30 text-red-400";
-      case "warning":
-        return "bg-yellow-500/20 border-yellow-500/30 text-yellow-400";
-      case "info":
-        return "bg-blue-500/20 border-blue-500/30 text-blue-400";
-      default:
-        return "bg-blue-500/20 border-blue-500/30 text-blue-400";
-    }
-  };
+  // Simple white/black style to match app
+  const baseCardClasses = "bg-white border border-black p-4 shadow-none";
 
   if (!isMounted) return null;
 
@@ -65,24 +38,23 @@ export function Notification({ type, title, message, duration = 5000, onClose }:
         className={`
           transform transition-all duration-300 ease-in-out
           ${isVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"}
-          ${getColors()}
-          backdrop-blur-sm rounded-lg p-4 border max-w-md shadow-lg
+          ${baseCardClasses}
+          max-w-md
         `}
       >
         <div className="flex items-start space-x-3">
-          <div className="text-xl">{getIcon()}</div>
           <div className="flex-1 min-w-0">
-            <div className="font-semibold text-white">{title}</div>
-            <div className="text-sm text-gray-300 mt-1">{message}</div>
+            <div className="font-mono text-sm font-bold text-black uppercase tracking-widest">{title}</div>
+            <div className="font-mono text-xs text-black mt-1">{message}</div>
           </div>
           <button
             onClick={() => {
               setIsVisible(false);
               setTimeout(onClose, 300);
             }}
-            className="text-gray-400 hover:text-white transition-colors ml-2"
+            className="text-black hover:text-emerald-700 transition-colors ml-2"
           >
-            ✕
+            ×
           </button>
         </div>
       </div>
