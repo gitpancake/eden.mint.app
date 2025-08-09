@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import { formatEther } from "viem";
 import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
@@ -14,6 +14,7 @@ import { RestCountdown } from "./RestCountdown";
 
 export function AuctionCard() {
   const { address } = useAccount();
+  const [nowMs, setNowMs] = useState<number>(Date.now());
 
   const fetcher = async (url: string) => {
     const res = await fetch(url, { cache: "no-store" });
@@ -75,6 +76,12 @@ export function AuctionCard() {
   });
 
   // no-op: rely on SWR refreshInterval and events; avoid key changes to prevent flicker
+
+  // Local clock to switch UI states exactly at boundaries without network calls
+  useEffect(() => {
+    const id = setInterval(() => setNowMs(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
 
   if (!data && isLoading) {
     return (
@@ -161,8 +168,10 @@ export function AuctionCard() {
   }
   const auction = currentAuction as Auction;
   const isWinner = address && auction.highestBidder.toLowerCase() === address.toLowerCase();
-  const currentTime = BigInt(Math.floor(Date.now() / 1000));
+  const currentTime = BigInt(Math.floor(nowMs / 1000));
   const auctionEnded = auction.endTime > BigInt(0) && currentTime >= auction.endTime;
+  const preStart = currentTime < auction.startTime;
+  const canBid = Boolean(auctionActive) && !auctionEnded && !preStart;
 
   const getAuctionStatus = () => {
     if (!auctionActive) {
@@ -235,9 +244,9 @@ export function AuctionCard() {
                   <div className="font-mono text-xs text-black">Be the first to bid and start the auction!</div>
                 </div>
               )}
-              {/* Initial highest bidder (0) notice */}
-              {!auctionEnded && auction.highestBid === BigInt(0) && isWinner && (
-                <div className="mt-4 p-3 border border-emerald-200 bg-emerald-50 font-mono text-xs text-emerald-700">You’re currently highest at 0. Any bid will outbid you.</div>
+              {/* Initial highest bidder (0) notice – only after start time */}
+              {!auctionEnded && auction.highestBid === BigInt(0) && isWinner && currentTime >= auction.startTime && (
+                <div className="mt-4 p-3 border border-emerald-200 bg-emerald-50 font-mono text-xs text-emerald-700">Place a bid to set the opening price.</div>
               )}
             </div>
 
@@ -246,8 +255,9 @@ export function AuctionCard() {
               currentBid={auction.highestBid}
               auctionActive={Boolean(auctionActive)}
               auctionEnded={Boolean(auctionEnded)}
-              isWinner={Boolean(isWinner)}
               canSettle={Boolean(canSettleAuction)}
+              canBid={canBid}
+              preStart={preStart}
               onBidSuccess={() => mutate()}
               onSettleSuccess={() => mutate()}
             />

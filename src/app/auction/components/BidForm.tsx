@@ -9,13 +9,14 @@ interface BidFormProps {
   currentBid: bigint;
   auctionActive: boolean;
   auctionEnded: boolean;
-  isWinner: boolean;
   canSettle: boolean;
+  canBid?: boolean;
+  preStart?: boolean;
   onBidSuccess?: () => void;
   onSettleSuccess?: () => void;
 }
 
-export function BidForm({ currentBid, auctionActive, auctionEnded, isWinner, canSettle, onBidSuccess, onSettleSuccess }: BidFormProps) {
+export function BidForm({ currentBid, auctionActive, auctionEnded, canSettle, canBid = true, preStart = false, onBidSuccess, onSettleSuccess }: BidFormProps) {
   const { isConnected } = useAccount();
   const [bidAmount, setBidAmount] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -96,8 +97,8 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, isWinner, can
     );
   }
 
-  // Show settle button if auction can be settled
-  if (canSettle) {
+  // Show settle button if auction has ended (UI boundary) or chain allows settlement
+  if (auctionEnded || canSettle) {
     return (
       <div className="border border-black p-6 bg-white">
         <div className="text-center mb-4">
@@ -116,7 +117,7 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, isWinner, can
               {isPending ? "Confirm in wallet..." : isConfirming ? "Settling..." : "Processing..."}
             </div>
           ) : (
-            "⚡ Settle Auction & Start Next"
+            "Settle Auction"
           )}
         </button>
       </div>
@@ -130,6 +131,18 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, isWinner, can
         <div className="text-center">
           <div className="font-mono text-xl font-bold text-black mb-2 uppercase tracking-widest">Auction Ended</div>
           <div className="font-mono text-xs text-black uppercase tracking-wide">Waiting for settlement</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Pre-start (rest or scheduled start) message
+  if (!auctionEnded && preStart) {
+    return (
+      <div className="border border-black p-6 bg-white">
+        <div className="text-center">
+          <div className="font-mono text-xl font-bold text-black mb-2 uppercase tracking-widest">Auction Scheduled</div>
+          <div className="font-mono text-xs text-black uppercase tracking-wide">Bidding opens when the timer reaches zero</div>
         </div>
       </div>
     );
@@ -185,13 +198,13 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, isWinner, can
       {/* Success message */}
       {isSuccess && (
         <div className="mb-4 p-3 border border-emerald-200 bg-emerald-50">
-          <div className="font-mono text-xs text-emerald-700">Transaction successful! 🎉</div>
+          <div className="font-mono text-xs text-emerald-700">Transaction successful</div>
         </div>
       )}
 
       <button
         onClick={handlePlaceBid}
-        disabled={!bidAmount || isSubmitting || isPending || isConfirming || parseFloat(bidAmount) < parseFloat(minBidFormatted)}
+        disabled={!canBid || !bidAmount || isSubmitting || isPending || isConfirming || parseFloat(bidAmount) < parseFloat(minBidFormatted)}
         className="w-full bg-black text-white py-4 px-6 font-mono text-sm font-bold uppercase tracking-widest hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-black"
       >
         {isSubmitting || isPending || isConfirming ? (
@@ -200,9 +213,9 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, isWinner, can
             {isPending ? "Confirm in wallet..." : isConfirming ? "Placing bid..." : "Processing..."}
           </div>
         ) : currentBid === BigInt(0) ? (
-          "🚀 Place First Bid"
+          "Place First Bid"
         ) : (
-          "💎 Place Bid"
+          "Place Bid"
         )}
       </button>
 
