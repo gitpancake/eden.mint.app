@@ -13,7 +13,7 @@ interface PlotPanelProps {
   onNotification: (message: string) => void;
 }
 
-export function PlotPanel({ planting, cell, isMobile, onClose, onPlant, onProtect, onBurn, onNotification }: PlotPanelProps) {
+export function PlotPanel({ planting, cell, isMobile, onClose, onPlant, onProtect, onBurn, onNotification: _onNotification }: PlotPanelProps) {
   const now = Date.now();
   const isProtected = cell.protectedUntil && cell.protectedUntil > now;
   const data = getMockPlotData(planting.row, planting.col, cell.plantedAt || undefined);

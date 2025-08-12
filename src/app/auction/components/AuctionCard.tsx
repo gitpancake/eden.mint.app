@@ -89,8 +89,6 @@ export function AuctionCard() {
     onAuctionSettled: () => mutate(),
     onAuctionStarted: () => mutate(),
     onRestScheduled: () => mutate(),
-    onAuctionDurationUpdated: () => mutate(),
-    onRestDurationUpdated: () => mutate(),
   });
 
   // no-op: rely on SWR refreshInterval and events; avoid key changes to prevent flicker

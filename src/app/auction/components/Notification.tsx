@@ -11,7 +11,7 @@ interface NotificationProps {
   onClose: () => void;
 }
 
-export function Notification({ type, title, message, duration = 5000, onClose }: NotificationProps) {
+export function Notification({ type: _type, title, message, duration = 5000, onClose }: NotificationProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 

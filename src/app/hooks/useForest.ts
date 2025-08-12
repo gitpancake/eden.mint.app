@@ -53,8 +53,8 @@ export function useForest(gridSize: number) {
 
   function handleBurn(row: number, col: number) {
     setForest((forest) => {
-      let treesBurned = 0;
-      let fireCaught = false;
+      let _treesBurned = 0;
+      let _fireCaught = false;
       const newForest = forest.map((arr) => arr.map((cell) => ({ ...cell })));
       const now = Date.now();
       const fireQueue = [{ row, col, seed: now }];
@@ -68,7 +68,7 @@ export function useForest(gridSize: number) {
         return forest;
       }
 
-      fireCaught = true;
+      _fireCaught = true;
 
       while (fireQueue.length > 0) {
         const next = fireQueue.shift();
@@ -85,7 +85,7 @@ export function useForest(gridSize: number) {
             newForest[r][c].protectedUntil = null;
             newForest[r][c].history = [{ event: "Tree burned", timestamp: new Date(now).toLocaleString() }, ...newForest[r][c].history];
           }
-          treesBurned++;
+          _treesBurned++;
 
           const directions = [
             [-1, 0],

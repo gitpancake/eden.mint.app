@@ -10,21 +10,10 @@ interface UseAuctionEventsProps {
   onAuctionSettled?: (data: { winner: string; amount: bigint; tokenId: bigint; auctionId: bigint }) => void;
   onAuctionStarted?: (data: { auctionId: bigint; tokenId: bigint; endTime: bigint }) => void;
   onRestScheduled?: (data: { nextAuctionEarliestStartTime: bigint }) => void;
-  onAuctionDurationUpdated?: (data: { newDuration: bigint }) => void;
-  onRestDurationUpdated?: (data: { newDuration: bigint }) => void;
   onAuctionsCompleted?: () => void;
 }
 
-export function useAuctionEvents({
-  onBidPlaced,
-  onBidRefunded,
-  onAuctionSettled,
-  onAuctionStarted,
-  onRestScheduled,
-  onAuctionDurationUpdated,
-  onRestDurationUpdated,
-  onAuctionsCompleted,
-}: UseAuctionEventsProps = {}) {
+export function useAuctionEvents({ onBidPlaced, onBidRefunded, onAuctionSettled, onAuctionStarted, onRestScheduled, onAuctionsCompleted }: UseAuctionEventsProps = {}) {
   const { address } = useAccount();
 
   // Watch for bid placed events
@@ -122,27 +111,7 @@ export function useAuctionEvents({
   });
 
   // Durations updated
-  useWatchContractEvent({
-    ...AUCTION_CONTRACT_CONFIG,
-    eventName: "AuctionDurationUpdated",
-    onLogs(logs) {
-      logs.forEach((log) => {
-        const { newDuration } = log.args as { newDuration: bigint };
-        if (newDuration) onAuctionDurationUpdated?.({ newDuration });
-      });
-    },
-  });
-
-  useWatchContractEvent({
-    ...AUCTION_CONTRACT_CONFIG,
-    eventName: "RestDurationUpdated",
-    onLogs(logs) {
-      logs.forEach((log) => {
-        const { newDuration } = log.args as { newDuration: bigint };
-        if (newDuration) onRestDurationUpdated?.({ newDuration });
-      });
-    },
-  });
+  // Note: current ABI does not expose duration update events
 }
 
 // Enhanced hook with notifications
