@@ -27,9 +27,10 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, canSettle, ca
     hash,
   });
 
-  // Calculate minimum bid (current bid + 0.001 ETH)
+  // Minimum bid logic
+  // First bid can be 0; subsequent bids must exceed current by increment
   const minBidIncrement = parseEther("0.001");
-  const minBid = currentBid + minBidIncrement;
+  const minBid = currentBid === BigInt(0) ? BigInt(0) : currentBid + minBidIncrement;
   const minBidFormatted = formatEther(minBid);
 
   const handlePlaceBid = async () => {
@@ -40,7 +41,13 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, canSettle, ca
       const normalizedAmount = bidAmount.replace(",", ".");
       const bidValue = parseEther(normalizedAmount);
 
-      if (bidValue <= currentBid) {
+      if (currentBid === BigInt(0)) {
+        // First bid can be 0; allow any non-negative value
+        if (bidValue < BigInt(0)) {
+          alert("Bid must be zero or positive");
+          return;
+        }
+      } else if (bidValue <= currentBid) {
         alert(`Bid must be higher than ${formatEther(currentBid)} ETH`);
         return;
       }
@@ -170,7 +177,7 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, canSettle, ca
               const sanitized = parts.length > 2 ? parts[0] + "." + parts.slice(1).join("") : next;
               setBidAmount(sanitized);
             }}
-            placeholder={`Minimum ${minBidFormatted} ETH`}
+            placeholder={currentBid === BigInt(0) ? "You can start at 0" : `Minimum ${minBidFormatted} ETH`}
             className="w-full bg-white border border-black px-4 py-3 font-mono text-black placeholder-gray-500 focus:border-emerald-700 focus:outline-none"
             disabled={isSubmitting || isPending || isConfirming}
             aria-label="Your bid in ETH"
@@ -220,8 +227,8 @@ export function BidForm({ currentBid, auctionActive, auctionEnded, canSettle, ca
       </button>
 
       <div className="mt-4 font-mono text-xs text-black text-center">
-        <div>💡 Previous bidders are automatically refunded when outbid</div>
-        <div className="mt-1">🔒 Your funds are safe - no manual claims needed</div>
+        <div>[i] Previous bidders are automatically refunded when outbid</div>
+        <div className="mt-1">[i] Your funds are safe - no manual claims needed</div>
       </div>
     </div>
   );

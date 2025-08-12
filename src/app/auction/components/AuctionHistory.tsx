@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { formatEther } from "viem";
+import { resolveIpfsUriToGateway } from "../../utils/ipfs";
 
 // Types for server response
 interface ServerBid {
@@ -64,7 +65,7 @@ function NFTThumbnail({ tokenId }: { tokenId: bigint }) {
         if (response.ok) {
           const metadata = await response.json();
           if (metadata.image) {
-            setImageSrc(metadata.image);
+            setImageSrc(resolveIpfsUriToGateway(metadata.image));
           } else {
             setImageSrc(""); // Will use fallback
           }
@@ -94,7 +95,7 @@ function NFTThumbnail({ tokenId }: { tokenId: bigint }) {
         <img src={imageSrc} alt={`NFT #${tokenId.toString()}`} className="w-full h-full object-cover" onError={() => setImageSrc("")} />
       ) : (
         <div className="w-full h-full flex items-center justify-center text-black">
-          <span className="text-2xl">🖼️</span>
+          <span className="text-xs">[ image ]</span>
         </div>
       )}
     </div>

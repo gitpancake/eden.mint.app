@@ -31,10 +31,8 @@ export async function GET(request: NextRequest) {
 
     console.log(`Fetching dashboard data for user: ${userAddress}`);
 
-    // Get user's ETH balance
-    const balance = await client.getBalance({
-      address: userAddress as `0x${string}`,
-    });
+    // Get user's ETH balance on the configured chain
+    const balance = await client.getBalance({ address: userAddress as `0x${string}` });
 
     // Get user's NFT balance
     const nftBalance = (await readContract(client, {
@@ -97,10 +95,24 @@ export async function GET(request: NextRequest) {
                 metadata = await metadataResponse.json();
               }
 
+              // Resolve IPFS image URIs to a gateway for client consumption
+              const gateway = (process.env.NEXT_PUBLIC_IPFS_GATEWAY || "https://fuchsia-rich-lungfish-648.mypinata.cloud/ipfs/").replace(/\/$/, "/");
+              const resolveImage = (uri: string | undefined) => {
+                if (!uri) return `${baseURI}/${tokenId.toString()}/image.png`;
+                if (/^https?:\/\//i.test(uri)) return uri;
+                if (uri.startsWith("ipfs://")) {
+                  let path = uri.slice("ipfs://".length);
+                  if (path.startsWith("ipfs/")) path = path.slice("ipfs/".length);
+                  return `${gateway}${path}`;
+                }
+                if (uri.startsWith("/ipfs/")) return `${gateway}${uri.slice("/ipfs/".length)}`;
+                return uri;
+              };
+
               userNFTs.push({
                 tokenId: tokenId.toString(),
                 name: metadata?.name || `Auction NFT #${tokenId}`,
-                image: metadata?.image || `${baseURI}/${tokenId.toString()}/image.png`,
+                image: resolveImage(metadata?.image),
                 auctionId: auctionId.toString(),
                 winningBid: highestBid.toString(),
               });

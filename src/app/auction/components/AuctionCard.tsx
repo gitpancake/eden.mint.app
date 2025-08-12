@@ -3,17 +3,18 @@
 import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import { formatEther } from "viem";
-import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { useAccount, useChainId, useReadContract, useSimulateContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { AUCTION_CONTRACT_CONFIG, type Auction } from "../config/contract";
 import { useAuctionEvents } from "../hooks/useAuctionEvents";
 import { BidForm } from "./BidForm";
 import { CountdownTimer } from "./CountdownTimer";
 import { NFTPreview } from "./NFTPreview";
 import { OwnerControls } from "./OwnerControls";
-import { RestCountdown } from "./RestCountdown";
+// import { RestCountdown } from "./RestCountdown";
 
 export function AuctionCard() {
   const { address } = useAccount();
+  const chainId = useChainId();
   const [nowMs, setNowMs] = useState<number>(Date.now());
 
   const fetcher = async (url: string) => {
@@ -35,10 +36,12 @@ export function AuctionCard() {
   const { data: ownerOnChain } = useReadContract({
     ...AUCTION_CONTRACT_CONFIG,
     functionName: "owner",
+    chainId,
   });
   const { data: genesisStartedOnChain } = useReadContract({
     ...AUCTION_CONTRACT_CONFIG,
     functionName: "genesisStarted",
+    chainId,
   });
 
   const currentAuction: Auction | null = useMemo(() => {
@@ -57,13 +60,28 @@ export function AuctionCard() {
 
   const auctionActive: boolean = Boolean(data?.auctionActive);
   const canSettleAuction: boolean = Boolean(data?.canSettleAuction);
-  const nextAuctionEarliestStartTime: bigint = BigInt(data?.nextAuctionEarliestStartTime || 0);
+  const hasStarted: boolean = Boolean(data?.currentAuction?.hasStarted);
+  const hasEnded: boolean = Boolean(data?.currentAuction?.hasEnded);
+  const nextTokenUriSeeded: boolean = Boolean(data?.nextTokenUriSeeded);
   // const auctionsSinceLastRest: bigint = BigInt(data?.auctionsSinceLastRest || 0);
   const owner: `0x${string}` | undefined = (data?.owner as `0x${string}` | undefined) ?? ownerOnChain;
   const genesisStarted: boolean = (data?.genesisStarted as boolean | undefined) ?? Boolean(genesisStartedOnChain);
 
   const { writeContract, data: txHash, isPending } = useWriteContract();
   const { isLoading: isConfirming } = useWaitForTransactionReceipt({ hash: txHash });
+
+  // Genesis preflight simulation must be declared before any conditional return
+  const isOwnerAddr = owner && address && owner.toLowerCase() === address.toLowerCase();
+  const simulateGenesis = useSimulateContract({
+    ...AUCTION_CONTRACT_CONFIG,
+    functionName: "startGenesisAuction",
+    account: address as `0x${string}` | undefined,
+    chainId,
+    query: { enabled: true },
+  });
+  const missingUriGenesis = Boolean(
+    !genesisStarted && isOwnerAddr && simulateGenesis.error && (simulateGenesis.error.message?.includes("MissingTokenURI") || String(simulateGenesis.error).includes("MissingTokenURI"))
+  );
 
   useAuctionEvents({
     onBidPlaced: () => mutate(),
@@ -112,51 +130,40 @@ export function AuctionCard() {
             <h2 className="font-mono text-xl font-bold text-black uppercase tracking-widest">Auctions not live yet</h2>
             <p className="font-mono text-sm text-black">Waiting for the owner to start the genesis auction.</p>
             <OwnerControls owner={owner} />
-            {owner && address && owner.toLowerCase() === address.toLowerCase() && (
+            {isOwnerAddr && (
               <button
                 onClick={async () => {
-                  await writeContract({ ...AUCTION_CONTRACT_CONFIG, functionName: "startNewAuction" });
+                  await writeContract({ ...AUCTION_CONTRACT_CONFIG, functionName: "startGenesisAuction" });
                   mutate();
                 }}
-                disabled={isPending || isConfirming}
+                disabled={isPending || isConfirming || missingUriGenesis || !nextTokenUriSeeded}
                 className="mx-auto mt-2 bg-black text-white px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest hover:bg-emerald-700 transition-colors border border-black"
               >
                 Start Genesis Auction
               </button>
             )}
+            {isOwnerAddr && (!nextTokenUriSeeded || missingUriGenesis) && <div className="font-mono text-xs text-black">Seed token URI for tokenId 0 before starting genesis.</div>}
           </div>
         </div>
       );
     }
 
-    // Rest scheduled
-    if (nextAuctionEarliestStartTime > BigInt(0)) {
-      return (
-        <div className="max-w-4xl mx-auto">
-          <div className="border border-black p-8 bg-white space-y-6">
-            <RestCountdown readyAt={nextAuctionEarliestStartTime} onReady={() => mutate()} />
-            <button
-              onClick={async () => {
-                await writeContract({ ...AUCTION_CONTRACT_CONFIG, functionName: "beginAuctionAfterRest" });
-                mutate();
-              }}
-              disabled={isPending || isConfirming || Math.floor(Date.now() / 1000) < Number(nextAuctionEarliestStartTime)}
-              className="w-full bg-black text-white py-4 px-6 font-mono text-sm font-bold uppercase tracking-widest hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-black"
-            >
-              Start Next Auction
-            </button>
-            <OwnerControls owner={owner} />
-          </div>
-        </div>
-      );
-    }
-
-    // No active auction, not rest (transition state)
+    // Paused flow: awaiting next token URI seeding
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="border border-black p-8 text-center bg-white">
-          <h2 className="font-mono text-xl font-bold text-black uppercase tracking-widest mb-4">No Active Auction</h2>
-          <p className="font-mono text-sm text-black">The next auction will start after settlement or rest.</p>
+        <div className="border border-black p-8 text-center bg-white space-y-4">
+          <h2 className="font-mono text-xl font-bold text-black uppercase tracking-widest">Paused: awaiting metadata</h2>
+          <p className="font-mono text-sm text-black">Owner needs to seed metadata for the next token. Once seeded, retry settlement to resume auctions.</p>
+          <button
+            onClick={async () => {
+              await writeContract({ ...AUCTION_CONTRACT_CONFIG, functionName: "settleAuction" });
+              mutate();
+            }}
+            disabled={isPending || isConfirming}
+            className="mx-auto mt-2 bg-black text-white px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest hover:bg-emerald-700 transition-colors border border-black"
+          >
+            Retry Settle
+          </button>
           <OwnerControls owner={owner} />
         </div>
       </div>
@@ -169,8 +176,8 @@ export function AuctionCard() {
   const auction = currentAuction as Auction;
   const isWinner = address && auction.highestBidder.toLowerCase() === address.toLowerCase();
   const currentTime = BigInt(Math.floor(nowMs / 1000));
-  const auctionEnded = auction.endTime > BigInt(0) && currentTime >= auction.endTime;
-  const preStart = currentTime < auction.startTime;
+  const auctionEnded = Boolean(hasEnded || (auction.endTime > BigInt(0) && currentTime >= auction.endTime));
+  const preStart = !hasStarted || currentTime < auction.startTime;
   const canBid = Boolean(auctionActive) && !auctionEnded && !preStart;
 
   const getAuctionStatus = () => {

@@ -14,7 +14,7 @@ const GRID_SIZE = 20;
 
 export default function Home() {
   const { address, isConnected } = useAccount();
-  const { data: balance } = useBalance({ address });
+  const { data: balance } = useBalance({ address, chainId: undefined });
   const { connect, connectors, isPending } = useConnect();
   const { disconnect } = useDisconnect();
 

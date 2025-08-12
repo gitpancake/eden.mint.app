@@ -12,9 +12,19 @@ interface UseAuctionEventsProps {
   onRestScheduled?: (data: { nextAuctionEarliestStartTime: bigint }) => void;
   onAuctionDurationUpdated?: (data: { newDuration: bigint }) => void;
   onRestDurationUpdated?: (data: { newDuration: bigint }) => void;
+  onAuctionsCompleted?: () => void;
 }
 
-export function useAuctionEvents({ onBidPlaced, onBidRefunded, onAuctionSettled, onAuctionStarted, onRestScheduled, onAuctionDurationUpdated, onRestDurationUpdated }: UseAuctionEventsProps = {}) {
+export function useAuctionEvents({
+  onBidPlaced,
+  onBidRefunded,
+  onAuctionSettled,
+  onAuctionStarted,
+  onRestScheduled,
+  onAuctionDurationUpdated,
+  onRestDurationUpdated,
+  onAuctionsCompleted,
+}: UseAuctionEventsProps = {}) {
   const { address } = useAccount();
 
   // Watch for bid placed events
@@ -27,9 +37,8 @@ export function useAuctionEvents({ onBidPlaced, onBidRefunded, onAuctionSettled,
         if (auctionId && bidder && amount) {
           onBidPlaced?.({ bidder, amount, auctionId });
 
-          // Show notification for user's own bids
           if (address && bidder.toLowerCase() === address.toLowerCase()) {
-            console.log(`✅ Your bid of ${formatEther(amount)} ETH was placed successfully!`);
+            console.log(`Your bid of ${formatEther(amount)} ETH was placed successfully.`);
           }
         }
       });
@@ -46,9 +55,8 @@ export function useAuctionEvents({ onBidPlaced, onBidRefunded, onAuctionSettled,
         if (auctionId && bidder && amount) {
           onBidRefunded?.({ bidder, amount, auctionId });
 
-          // Show notification for user's refunds
           if (address && bidder.toLowerCase() === address.toLowerCase()) {
-            console.log(`💰 Your bid of ${formatEther(amount)} ETH was refunded (outbid)`);
+            console.log(`Your bid of ${formatEther(amount)} ETH was refunded (outbid).`);
           }
         }
       });
@@ -65,9 +73,8 @@ export function useAuctionEvents({ onBidPlaced, onBidRefunded, onAuctionSettled,
         if (auctionId && winner && amount && tokenId) {
           onAuctionSettled?.({ winner, amount, tokenId, auctionId });
 
-          // Show notification for user wins
           if (address && winner.toLowerCase() === address.toLowerCase()) {
-            console.log(`🏆 Congratulations! You won auction #${auctionId.toString()} for ${formatEther(amount)} ETH!`);
+            console.log(`You won auction #${auctionId.toString()} for ${formatEther(amount)} ETH.`);
           }
         }
       });
@@ -83,7 +90,7 @@ export function useAuctionEvents({ onBidPlaced, onBidRefunded, onAuctionSettled,
         const { auctionId, tokenId, endTime } = log.args;
         if (auctionId && tokenId && endTime) {
           onAuctionStarted?.({ auctionId, tokenId, endTime });
-          console.log(`🎨 New auction #${auctionId.toString()} started for Token #${tokenId.toString()}!`);
+          console.log(`New auction #${auctionId.toString()} started for Token #${tokenId.toString()}.`);
         }
       });
     },
@@ -98,9 +105,19 @@ export function useAuctionEvents({ onBidPlaced, onBidRefunded, onAuctionSettled,
         const { nextAuctionEarliestStartTime } = log.args as { nextAuctionEarliestStartTime: bigint };
         if (nextAuctionEarliestStartTime) {
           onRestScheduled?.({ nextAuctionEarliestStartTime });
-          console.log(`🛌 Rest scheduled. Next auction earliest start at ${nextAuctionEarliestStartTime.toString()}`);
+          console.log(`Rest scheduled. Next auction earliest start at ${nextAuctionEarliestStartTime.toString()}.`);
         }
       });
+    },
+  });
+
+  // Auctions completed
+  useWatchContractEvent({
+    ...AUCTION_CONTRACT_CONFIG,
+    eventName: "AuctionsCompleted",
+    onLogs() {
+      onAuctionsCompleted?.();
+      console.log("All auctions completed.");
     },
   });
 
@@ -137,14 +154,14 @@ export function useAuctionEventsWithNotifications(addNotification?: (notificatio
       if (address && bidder.toLowerCase() === address.toLowerCase()) {
         addNotification?.({
           type: "success",
-          title: "Bid Placed Successfully! 🎉",
+          title: "Bid Placed Successfully",
           message: `Your bid of ${formatEther(amount)} ETH is now the highest bid.`,
           duration: 5000,
         });
       } else {
         addNotification?.({
           type: "info",
-          title: "New Bid Placed 📈",
+          title: "New Bid Placed",
           message: `Someone bid ${formatEther(amount)} ETH. The auction is heating up!`,
           duration: 4000,
         });
@@ -155,7 +172,7 @@ export function useAuctionEventsWithNotifications(addNotification?: (notificatio
       if (address && bidder.toLowerCase() === address.toLowerCase()) {
         addNotification?.({
           type: "warning",
-          title: "You've Been Outbid! 💰",
+          title: "You've Been Outbid",
           message: `Your ${formatEther(amount)} ETH bid was refunded. Place a higher bid to win!`,
           duration: 6000,
         });
@@ -166,15 +183,15 @@ export function useAuctionEventsWithNotifications(addNotification?: (notificatio
       if (address && winner.toLowerCase() === address.toLowerCase()) {
         addNotification?.({
           type: "success",
-          title: "Congratulations! You Won! 🏆",
-          message: `You won Token #${tokenId.toString()} for ${formatEther(amount)} ETH. Claim your NFT now!`,
+          title: "Congratulations! You Won",
+          message: `You won Token #${tokenId.toString()} for ${formatEther(amount)} ETH.`,
           duration: 8000,
         });
       } else {
         addNotification?.({
           type: "info",
-          title: "Auction Ended 🎯",
-          message: `Token #${tokenId.toString()} sold for ${formatEther(amount)} ETH. Next auction starting soon!`,
+          title: "Auction Ended",
+          message: `Token #${tokenId.toString()} sold for ${formatEther(amount)} ETH.`,
           duration: 5000,
         });
       }
@@ -183,7 +200,7 @@ export function useAuctionEventsWithNotifications(addNotification?: (notificatio
     onAuctionStarted: ({ auctionId, tokenId }) => {
       addNotification?.({
         type: "info",
-        title: "New Auction Started! 🎨",
+        title: "New Auction Started",
         message: `Auction #${auctionId.toString()} for Token #${tokenId.toString()} is now live!`,
         duration: 5000,
       });

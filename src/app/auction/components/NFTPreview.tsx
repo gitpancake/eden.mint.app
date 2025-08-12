@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useChainId, useReadContract } from "wagmi";
+import { baseSepolia } from "wagmi/chains";
+import { resolveIpfsUriToGateway } from "../../utils/ipfs";
+import { AUCTION_CONTRACT_CONFIG } from "../config/contract";
 
 interface NFTMetadata {
   name: string;
@@ -23,18 +27,47 @@ export function NFTPreview({ tokenId, className = "" }: NFTPreviewProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAllAttributes, setShowAllAttributes] = useState(false);
+  const chainId = useChainId();
+
+  // Dynamically read tokenURI from the contract for this tokenId
+  const {
+    data: tokenUri,
+    isLoading: isTokenUriLoading,
+    error: tokenUriError,
+  } = useReadContract({
+    ...AUCTION_CONTRACT_CONFIG,
+    functionName: "tokenURI",
+    args: [tokenId],
+    chainId: baseSepolia.id,
+  });
+
+  // No baseTokenURI in new ABI; server-side fallback will be used instead
 
   useEffect(() => {
+    console.log({ tokenUriError, tokenUri, tokenId, addr: AUCTION_CONTRACT_CONFIG.address, chainId });
     const fetchMetadata = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        // Construct metadata URL based on the contract's tokenURI format
-        const baseURI = process.env.NEXT_PUBLIC_NFT_BASE_URI || window.location.origin;
-        const metadataUrl = `${baseURI}/${tokenId.toString()}/metadata.json`;
+        let effectiveUri: string | undefined = typeof tokenUri === "string" ? tokenUri : undefined;
+        if (!effectiveUri) {
+          try {
+            const res = await fetch(`/api/token-uri/${tokenId.toString()}`, { cache: "no-store" });
+            if (res.ok) {
+              const json = (await res.json()) as { tokenUri?: string };
+              if (json?.tokenUri && typeof json.tokenUri === "string") {
+                effectiveUri = json.tokenUri;
+              }
+            }
+          } catch {}
+        }
+        if (!effectiveUri) throw new Error("Token URI not available for this tokenId");
 
-        const response = await fetch(metadataUrl);
+        // Resolve IPFS URIs to a gateway if needed; http(s) URIs are used as-is
+        const resolvedUri = resolveIpfsUriToGateway(effectiveUri);
+
+        const response = await fetch(resolvedUri);
         if (!response.ok) {
           throw new Error(`Failed to fetch metadata: ${response.status}`);
         }
@@ -49,12 +82,13 @@ export function NFTPreview({ tokenId, className = "" }: NFTPreviewProps) {
       }
     };
 
-    if (tokenId) {
+    // Fetch when tokenURI becomes available or tokenId changes
+    if (tokenUri && typeof tokenUri === "string") {
       fetchMetadata();
     }
-  }, [tokenId]);
+  }, [tokenId, tokenUri, tokenUriError, chainId]);
 
-  if (loading) {
+  if (isTokenUriLoading || loading) {
     return (
       <div className={`${className}`}>
         <div className="aspect-square border border-black bg-white flex items-center justify-center">
@@ -68,13 +102,13 @@ export function NFTPreview({ tokenId, className = "" }: NFTPreviewProps) {
     );
   }
 
-  if (error || !metadata) {
+  if (tokenUriError || error || !metadata || !metadata.image) {
     return (
       <div className={`${className}`}>
         <div className="aspect-square border-2 border-dashed border-black bg-white flex items-center justify-center">
           <div className="text-center">
-            <div className="text-4xl mb-2">🖼️</div>
-            <div className="font-mono text-xs text-black uppercase tracking-wide">{error || "No metadata available"}</div>
+            <div className="text-4xl mb-2">[ ]</div>
+            <div className="font-mono text-xs text-black uppercase tracking-wide">{(tokenUriError && String(tokenUriError)) || error || "No metadata available"}</div>
             <div className="font-mono text-xs text-black mt-1">Token #{tokenId.toString()}</div>
           </div>
         </div>
@@ -91,7 +125,7 @@ export function NFTPreview({ tokenId, className = "" }: NFTPreviewProps) {
       {/* NFT Image */}
       <div className="aspect-square border border-black bg-white overflow-hidden relative group">
         <img
-          src={metadata.image}
+          src={resolveIpfsUriToGateway(metadata.image)}
           alt={metadata.name}
           className="w-full h-full object-cover transition-transform group-hover:scale-105"
           onError={(e) => {
