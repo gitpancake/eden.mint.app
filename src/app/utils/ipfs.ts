@@ -1,7 +1,7 @@
 export function resolveIpfsUriToGateway(uri: string | undefined | null): string {
   if (!uri) return "";
 
-  const fallbackGateway = "https://fuchsia-rich-lungfish-648.mypinata.cloud/ipfs/";
+  const fallbackGateway = "https://ipfs.io/ipfs/";
   // Prefer env var if provided, else use the provided Pinata gateway
   const gateway = (process.env.NEXT_PUBLIC_IPFS_GATEWAY || fallbackGateway).replace(/\/$/, "/");
 

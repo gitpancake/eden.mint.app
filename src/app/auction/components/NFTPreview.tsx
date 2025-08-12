@@ -44,7 +44,6 @@ export function NFTPreview({ tokenId, className = "" }: NFTPreviewProps) {
   // No baseTokenURI in new ABI; server-side fallback will be used instead
 
   useEffect(() => {
-    console.log({ tokenUriError, tokenUri, tokenId, addr: AUCTION_CONTRACT_CONFIG.address, chainId });
     const fetchMetadata = async () => {
       setLoading(true);
       setError(null);
@@ -54,6 +53,7 @@ export function NFTPreview({ tokenId, className = "" }: NFTPreviewProps) {
         if (!effectiveUri) {
           try {
             const res = await fetch(`/api/token-uri/${tokenId.toString()}`, { cache: "no-store" });
+            console.log({ res });
             if (res.ok) {
               const json = (await res.json()) as { tokenUri?: string };
               if (json?.tokenUri && typeof json.tokenUri === "string") {

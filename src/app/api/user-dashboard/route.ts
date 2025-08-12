@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
               }
 
               // Resolve IPFS image URIs to a gateway for client consumption
-              const gateway = (process.env.NEXT_PUBLIC_IPFS_GATEWAY || "https://fuchsia-rich-lungfish-648.mypinata.cloud/ipfs/").replace(/\/$/, "/");
+              const gateway = (process.env.NEXT_PUBLIC_IPFS_GATEWAY || "https://ipfs.io/ipfs/").replace(/\/$/, "/");
               const resolveImage = (uri: string | undefined) => {
                 if (!uri) return `${baseURI}/${tokenId.toString()}/image.png`;
                 if (/^https?:\/\//i.test(uri)) return uri;
