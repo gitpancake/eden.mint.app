@@ -45,6 +45,7 @@ export function WalletConnect() {
                               return;
                             } catch {
                               // fall through to web modal
+                              return;
                             }
                           }
                           openConnectModal();
