@@ -41,6 +41,7 @@ export function WalletConnect() {
                           const inMiniApp = await sdk.isInMiniApp();
                           if (inMiniApp) {
                             connect({ connector: connectors[0] });
+                            return;
                           }
                           openConnectModal();
                         }}
@@ -65,6 +66,7 @@ export function WalletConnect() {
                         const inMiniApp = await sdk.isInMiniApp();
                         if (inMiniApp) {
                           connect({ connector: connectors[0] });
+                          return;
                         }
                         openAccountModal();
                       }}
