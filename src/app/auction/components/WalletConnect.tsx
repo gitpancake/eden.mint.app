@@ -41,7 +41,7 @@ export function WalletConnect() {
                           const inMiniApp = await sdk.isInMiniApp();
                           if (inMiniApp && status !== "pending" && connectors && connectors[0]) {
                             try {
-                              connect({ connector: connectors[0] });
+                              await connect({ connector: connectors[0] });
                               return;
                             } catch {
                               // fall through to web modal
@@ -69,12 +69,10 @@ export function WalletConnect() {
                       onClick={async () => {
                         const inMiniApp = await sdk.isInMiniApp();
                         if (inMiniApp && status !== "pending" && connectors && connectors[0]) {
-                          connect({ connector: connectors[0] });
                           try {
                             connect({ connector: connectors[0] });
                             return;
                           } catch {
-                            connect({ connector: connectors[0] });
                             // if switching fails, ignore and do nothing
                             return;
                           }
