@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { createPublicClient, http } from "viem";
 import { readContract } from "viem/actions";
 import { baseSepolia } from "viem/chains";
-import { AUCTION_CONTRACT_CONFIG } from "./config/contract";
+import { AUCTION_CONTRACT_CONFIG } from "./auction/config/contract";
 
 export const runtime = "edge";
 export const contentType = "image/png";
@@ -61,10 +61,9 @@ async function fetchAuctionState(): Promise<{ auctionActive: boolean; current: A
 
 function formatEth(value: bigint): string {
   if (value === BigInt(0)) return "0";
-  // Simple fixed 4 decimals formatter without pulling extra libs
   const s = value.toString();
   const whole = s.length > 18 ? s.slice(0, s.length - 18) : "0";
-  const frac = s.padStart(19, "0").slice(-18, -14); // 4 decimals
+  const frac = s.padStart(19, "0").slice(-18, -14);
   return `${whole}.${frac}`.replace(/\.0+$/, "");
 }
 
