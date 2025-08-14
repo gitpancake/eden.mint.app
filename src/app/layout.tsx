@@ -10,8 +10,8 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Ancient Tree Community Forest",
-  description: "Plant and mint unique ancient trees. Grow our community forest and celebrate the majesty of ancient trees.",
+  title: "Auction App",
+  description: "Bid on unique NFTs in a continuous auction system.",
 };
 
 export default function RootLayout({

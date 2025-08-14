@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AuctionCard } from "./components/AuctionCard";
 import { AuctionHistory } from "./components/AuctionHistory";
@@ -27,8 +28,24 @@ export default function AuctionPage() {
     return () => window.removeEventListener("switchTab", handleTabSwitch as EventListener);
   }, []);
 
-    return (
+  return (
     <div className="min-h-screen bg-white">
+      {/* Header with Navigation */}
+      <div className="border-b border-black p-4">
+        <div className="container mx-auto">
+          <div className="flex justify-between items-center">
+            <Link href="/" className="font-mono text-lg font-bold text-black uppercase tracking-widest hover:text-emerald-600 transition-colors">
+              Home
+            </Link>
+            <div className="flex space-x-6">
+              <Link href="/auction" className="font-mono text-sm text-black uppercase tracking-wide border-b-2 border-black">
+                Auction
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-black pb-8">
@@ -43,13 +60,17 @@ export default function AuctionPage() {
         <div className="flex space-x-0 mb-8 border border-black w-fit mx-auto">
           <button
             onClick={() => setActiveTab("auction")}
-            className={`px-6 py-3 font-mono text-xs uppercase tracking-widest border-r border-black transition-all ${activeTab === "auction" ? "bg-black text-white" : "bg-white text-black hover:bg-emerald-50"}`}
+            className={`px-6 py-3 font-mono text-xs uppercase tracking-widest border-r border-black transition-all ${
+              activeTab === "auction" ? "bg-black text-white" : "bg-white text-black hover:bg-emerald-50"
+            }`}
           >
             Current Auction
           </button>
           <button
             onClick={() => setActiveTab("history")}
-            className={`px-6 py-3 font-mono text-xs uppercase tracking-widest border-r border-black transition-all ${activeTab === "history" ? "bg-black text-white" : "bg-white text-black hover:bg-emerald-50"}`}
+            className={`px-6 py-3 font-mono text-xs uppercase tracking-widest border-r border-black transition-all ${
+              activeTab === "history" ? "bg-black text-white" : "bg-white text-black hover:bg-emerald-50"
+            }`}
           >
             Auction History
           </button>
@@ -86,12 +107,14 @@ export default function AuctionPage() {
             </div>
             <div className="border border-emerald-200 p-4 bg-emerald-50">
               <div className="font-mono text-xs font-bold text-black uppercase tracking-widest mb-2">4. Rest Windows</div>
-              <p className="font-mono text-xs text-black">After several auctions, a rest is scheduled. When the rest time elapses, anyone can start the next auction and becomes initial highest bidder at 0.</p>
+              <p className="font-mono text-xs text-black">
+                After several auctions, a rest is scheduled. When the rest time elapses, anyone can start the next auction and becomes initial highest bidder at 0.
+              </p>
             </div>
           </div>
         </div>
       </div>
-      
+
       {/* Notification Container */}
       <NotificationContainer />
     </div>

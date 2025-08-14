@@ -9,16 +9,16 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   // Construct metadata
   const metadata = {
-    name: `Ancient Tree #${tokenId}`,
-    description: "A unique tree planted in the community forest. Celebrate the majesty of ancient trees and help grow our community forest.",
+    name: `Auction NFT #${tokenId}`,
+    description: "An NFT minted via the on-chain auction.",
     image: `${request.nextUrl.origin}/assets/${tokenId}.png`,
     attributes: [
       {
-        trait_type: "Community",
-        value: "Forest",
+        trait_type: "Source",
+        value: "Auction",
       },
       {
-        trait_type: "Tree ID",
+        trait_type: "Token ID",
         value: tokenId,
       },
     ],
