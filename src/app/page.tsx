@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { AuctionCard } from "./auction/components/AuctionCard";
 import { AuctionHistory } from "./auction/components/AuctionHistory";
-import { MiniWalletBadge } from "./auction/components/MiniWalletBadge";
 import { useNotification } from "./auction/components/Notification";
 import { UserDashboard } from "./auction/components/UserDashboard";
 import { WalletConnect } from "./auction/components/WalletConnect";
@@ -32,7 +31,9 @@ export default function Home() {
         {/* Header: compact on mobile, full on desktop */}
         <div className="md:hidden flex justify-between items-center mb-6 border-b border-black pb-6">
           <div className="font-mono text-xl font-bold text-black uppercase tracking-widest">Abraham</div>
-          <div className="ml-auto">{typeof window !== "undefined" && (window as any).farcaster?.miniapp ? <MiniWalletBadge /> : <WalletConnect />}</div>
+          <div className="ml-auto">
+            <WalletConnect />
+          </div>
         </div>
 
         <div className="hidden md:flex flex-col md:flex-row justify-between items-center mb-8 border-b border-black pb-8">

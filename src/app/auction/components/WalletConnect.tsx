@@ -1,5 +1,6 @@
 "use client";
 
+import { sdk } from "@farcaster/miniapp-sdk";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { formatEther } from "viem";
 import { useAccount, useBalance, useChainId } from "wagmi";
@@ -48,7 +49,19 @@ export function WalletConnect() {
                   }
                   const short = account.address ? `${account.address.slice(0, 4)}…${account.address.slice(-4)}` : account.displayName;
                   return (
-                    <button onClick={openAccountModal} type="button" className="bg-transparent text-black p-0 m-0 border-0 font-mono text-[10px] leading-none uppercase tracking-widest">
+                    <button
+                      onClick={async () => {
+                        const isMiniApp = await sdk.isInMiniApp();
+
+                        if (isMiniApp) {
+                          return;
+                        } else {
+                          openAccountModal();
+                        }
+                      }}
+                      type="button"
+                      className="bg-transparent text-black p-0 m-0 border-0 font-mono text-[10px] leading-none uppercase tracking-widest"
+                    >
                       {short}
                     </button>
                   );
