@@ -3,11 +3,12 @@
 import { sdk } from "@farcaster/miniapp-sdk";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { formatEther } from "viem";
-import { useAccount, useBalance, useChainId } from "wagmi";
+import { useAccount, useBalance, useChainId, useConnect } from "wagmi";
 
 export function WalletConnect() {
   const chainId = useChainId();
   const { address } = useAccount();
+  const { connect, connectors, status } = useConnect();
 
   const { data: liveBalance } = useBalance({ address, chainId });
 
@@ -35,7 +36,22 @@ export function WalletConnect() {
                   // Mobile: minimal UI — address only, no borders/padding/chain
                   if (!connected) {
                     return (
-                      <button onClick={openConnectModal} type="button" className="bg-transparent text-black p-0 m-0 border-0 font-mono text-[10px] uppercase tracking-widest">
+                      <button
+                        onClick={async () => {
+                          const inMiniApp = await sdk.isInMiniApp();
+                          if (inMiniApp && status !== "pending" && connectors && connectors[0]) {
+                            try {
+                              connect({ connector: connectors[0] });
+                              return;
+                            } catch {
+                              // fall through to web modal
+                            }
+                          }
+                          openConnectModal();
+                        }}
+                        type="button"
+                        className="bg-transparent text-black p-0 m-0 border-0 font-mono text-[10px] uppercase tracking-widest"
+                      >
                         Connect
                       </button>
                     );
@@ -51,13 +67,19 @@ export function WalletConnect() {
                   return (
                     <button
                       onClick={async () => {
-                        const isMiniApp = await sdk.isInMiniApp();
-
-                        if (isMiniApp) {
-                          return;
-                        } else {
-                          openAccountModal();
+                        const inMiniApp = await sdk.isInMiniApp();
+                        if (inMiniApp && status !== "pending" && connectors && connectors[0]) {
+                          connect({ connector: connectors[0] });
+                          try {
+                            connect({ connector: connectors[0] });
+                            return;
+                          } catch {
+                            connect({ connector: connectors[0] });
+                            // if switching fails, ignore and do nothing
+                            return;
+                          }
                         }
+                        openAccountModal();
                       }}
                       type="button"
                       className="bg-transparent text-black p-0 m-0 border-0 font-mono text-[10px] leading-none uppercase tracking-widest"
@@ -70,7 +92,16 @@ export function WalletConnect() {
                   if (!connected) {
                     return (
                       <button
-                        onClick={openConnectModal}
+                        onClick={async () => {
+                          const inMiniApp = await sdk.isInMiniApp();
+                          if (inMiniApp && status !== "pending" && connectors && connectors[0]) {
+                            try {
+                              await connect({ connector: connectors[0] });
+                              return;
+                            } catch {}
+                          }
+                          openConnectModal();
+                        }}
                         type="button"
                         className="bg-black text-white px-6 py-3 font-mono text-xs uppercase tracking-widest border border-black hover:bg-emerald-700 transition-colors"
                       >
