@@ -18,7 +18,7 @@ const client = createPublicClient({
 
 export async function GET() {
   try {
-    const [view, payoutAddress, owner, genesisStarted] = await Promise.all([
+    const [view, payoutAddress, owner, genesisStarted, allAuctionIds] = await Promise.all([
       readContract(client, {
         address: AUCTION_CONTRACT_CONFIG.address,
         abi: AUCTION_CONTRACT_CONFIG.abi,
@@ -56,9 +56,54 @@ export async function GET() {
         abi: AUCTION_CONTRACT_CONFIG.abi,
         functionName: "genesisStarted",
       }) as Promise<boolean>,
+      readContract(client, {
+        address: AUCTION_CONTRACT_CONFIG.address,
+        abi: AUCTION_CONTRACT_CONFIG.abi,
+        functionName: "getAllAuctionIds",
+      }) as Promise<bigint[]>,
     ]);
 
     const [auctionId, tokenId, startTime, endTime, highestBidder, highestBid, settled, exists, isAuctionActive, hasStarted, hasEnded, canSettleNow, nextTokenUriSeeded, totalBids] = view;
+
+    // Get previous auction data if available
+    let previousAuction = null;
+    if (allAuctionIds.length > 1) {
+      const previousAuctionId = allAuctionIds[allAuctionIds.length - 2]; // Get second to last auction
+      try {
+        const previousAuctionData = await readContract(client, {
+          address: AUCTION_CONTRACT_CONFIG.address,
+          abi: AUCTION_CONTRACT_CONFIG.abi,
+          functionName: "auctions",
+          args: [previousAuctionId],
+        });
+
+        const [prevAuctionId, prevTokenId, prevStartTime, prevEndTime, prevHighestBidder, prevHighestBid, prevSettled, prevExists] = previousAuctionData as [
+          bigint,
+          bigint,
+          bigint,
+          bigint,
+          `0x${string}`,
+          bigint,
+          boolean,
+          boolean
+        ];
+
+        if (prevExists) {
+          previousAuction = {
+            auctionId: prevAuctionId.toString(),
+            tokenId: prevTokenId.toString(),
+            startTime: prevStartTime.toString(),
+            endTime: prevEndTime.toString(),
+            highestBidder: prevHighestBidder,
+            highestBid: prevHighestBid.toString(),
+            settled: prevSettled,
+            exists: prevExists,
+          };
+        }
+      } catch (error) {
+        console.error("Error fetching previous auction:", error);
+      }
+    }
 
     return NextResponse.json({
       auctionActive: isAuctionActive,
@@ -82,6 +127,7 @@ export async function GET() {
       owner,
       genesisStarted,
       nextTokenUriSeeded,
+      previousAuction,
     });
   } catch (error) {
     console.error("Error fetching auction state:", error);

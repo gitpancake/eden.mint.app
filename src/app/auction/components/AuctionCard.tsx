@@ -149,20 +149,72 @@ export function AuctionCard() {
     // Paused flow: awaiting next token URI seeding
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="border border-black p-8 text-center bg-white space-y-4">
-          <h2 className="font-mono text-xl font-bold text-black uppercase tracking-widest">Paused: awaiting metadata</h2>
-          <p className="font-mono text-sm text-black">Owner needs to seed metadata for the next token. Once seeded, retry settlement to resume auctions.</p>
-          <button
-            onClick={async () => {
-              await writeContract({ ...AUCTION_CONTRACT_CONFIG, functionName: "settleAuction" });
-              mutate();
-            }}
-            disabled={isPending || isConfirming}
-            className="mx-auto mt-2 bg-black text-white px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest hover:bg-emerald-700 transition-colors border border-black"
-          >
-            Retry Settle
-          </button>
-          <OwnerControls owner={owner} />
+        <div className="border border-black p-4 md:p-8 bg-white">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-6 border-b border-black pb-6">
+            <div>
+              <h1 className="font-mono text-xl md:text-2xl font-bold text-black uppercase tracking-widest mb-2">Previous Auction Result</h1>
+              <div className="font-mono text-xs uppercase tracking-widest text-black">Paused: awaiting metadata for next auction</div>
+            </div>
+          </div>
+
+          {data?.previousAuction ? (
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Left side - Previous NFT Preview */}
+              <div>
+                <NFTPreview tokenId={BigInt(data.previousAuction.tokenId)} />
+              </div>
+
+              {/* Right side - Previous Auction Details */}
+              <div className="space-y-6">
+                <div className="border border-black p-4 md:p-6 bg-white">
+                  <h3 className="font-mono text-sm font-bold text-black uppercase tracking-widest mb-4">Auction #{data.previousAuction.auctionId}</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="font-mono text-2xl md:text-3xl font-bold text-black mb-2">{formatEther(BigInt(data.previousAuction.highestBid))} ETH</div>
+                      <div className="font-mono text-xs text-black">
+                        Won by {data.previousAuction.highestBidder.slice(0, 6)}...{data.previousAuction.highestBidder.slice(-4)}
+                      </div>
+                    </div>
+                    <div className="font-mono text-xs text-black">Token #{data.previousAuction.tokenId}</div>
+                  </div>
+                </div>
+
+                <div className="border border-black p-4 md:p-6 bg-white">
+                  <h3 className="font-mono text-sm font-bold text-black uppercase tracking-widest mb-4">Next Steps</h3>
+                  <p className="font-mono text-xs text-black mb-4">Owner needs to seed metadata for the next token. Once seeded, retry settlement to resume auctions.</p>
+                  <button
+                    onClick={async () => {
+                      await writeContract({ ...AUCTION_CONTRACT_CONFIG, functionName: "settleAuction" });
+                      mutate();
+                    }}
+                    disabled={isPending || isConfirming}
+                    className="w-full bg-black text-white px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest hover:bg-emerald-700 transition-colors border border-black"
+                  >
+                    Retry Settle
+                  </button>
+                </div>
+
+                <OwnerControls owner={owner} />
+              </div>
+            </div>
+          ) : (
+            <div className="text-center space-y-4">
+              <h2 className="font-mono text-xl font-bold text-black uppercase tracking-widest">Paused: awaiting metadata</h2>
+              <p className="font-mono text-sm text-black">Owner needs to seed metadata for the next token. Once seeded, retry settlement to resume auctions.</p>
+              <button
+                onClick={async () => {
+                  await writeContract({ ...AUCTION_CONTRACT_CONFIG, functionName: "settleAuction" });
+                  mutate();
+                }}
+                disabled={isPending || isConfirming}
+                className="mx-auto mt-2 bg-black text-white px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest hover:bg-emerald-700 transition-colors border border-black"
+              >
+                Retry Settle
+              </button>
+              <OwnerControls owner={owner} />
+            </div>
+          )}
         </div>
       </div>
     );
