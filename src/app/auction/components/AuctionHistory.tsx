@@ -58,8 +58,8 @@ function NFTThumbnail({ tokenId }: { tokenId: bigint }) {
   useEffect(() => {
     const fetchNFTImage = async () => {
       try {
-        const baseURI = process.env.NEXT_PUBLIC_NFT_BASE_URI || window.location.origin;
-        const metadataUrl = `${baseURI}/${tokenId.toString()}/metadata.json`;
+        // Use the API endpoint for metadata
+        const metadataUrl = `/api/metadata/${tokenId.toString()}`;
 
         const response = await fetch(metadataUrl);
         if (response.ok) {
@@ -69,6 +69,9 @@ function NFTThumbnail({ tokenId }: { tokenId: bigint }) {
           } else {
             setImageSrc(""); // Will use fallback
           }
+        } else {
+          console.warn(`Failed to fetch metadata for token ${tokenId}: ${response.status}`);
+          setImageSrc(""); // Will use fallback
         }
       } catch (error) {
         console.error(`Error fetching NFT metadata for token ${tokenId}:`, error);
@@ -282,7 +285,7 @@ export function AuctionHistory() {
                     {/* View NFT button */}
                     <div className="pt-2">
                       <a
-                        href={`${process.env.NEXT_PUBLIC_NFT_BASE_URI || window.location.origin}/${auction.tokenId.toString()}/metadata.json`}
+                        href={`/api/metadata/${auction.tokenId.toString()}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center font-mono text-xs font-bold text-black hover:text-emerald-700 uppercase tracking-widest"

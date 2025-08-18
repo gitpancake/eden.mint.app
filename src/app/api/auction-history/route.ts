@@ -100,8 +100,8 @@ export async function GET() {
           bids: bids,
         };
 
-        // Only add if auction exists and has bids
-        if (exists && bids.length > 0) {
+        // Only add if auction exists (include all settled auctions, even those without bids)
+        if (exists) {
           auctions.push(auction);
         }
       } catch (error) {
