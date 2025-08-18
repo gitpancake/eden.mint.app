@@ -86,19 +86,19 @@ function NFTThumbnail({ tokenId }: { tokenId: bigint }) {
 
   if (isLoading) {
     return (
-      <div className="w-16 h-16 border border-black bg-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
+      <div className="w-12 h-12 md:w-16 md:h-16 border border-black bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-3 w-3 md:h-4 md:w-4 border-b-2 border-black"></div>
       </div>
     );
   }
 
   return (
-    <div className="w-16 h-16 border border-black bg-white overflow-hidden">
+    <div className="w-12 h-12 md:w-16 md:h-16 border border-black bg-white overflow-hidden">
       {imageSrc ? (
         <img src={imageSrc} alt={`NFT #${tokenId.toString()}`} className="w-full h-full object-cover" onError={() => setImageSrc("")} />
       ) : (
         <div className="w-full h-full flex items-center justify-center text-black">
-          <span className="text-xs">[ image ]</span>
+          <span className="text-[8px] md:text-xs">[ image ]</span>
         </div>
       )}
     </div>
@@ -201,39 +201,39 @@ export function AuctionHistory() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="border border-black p-8 bg-white">
-        <h2 className="font-mono text-2xl font-bold text-black uppercase tracking-widest mb-6">Auction History</h2>
+      <div className="border border-black p-4 md:p-8 bg-white">
+        <h2 className="font-mono text-lg md:text-2xl font-bold text-black uppercase tracking-widest mb-4 md:mb-6">Auction History</h2>
 
-        <div className="space-y-4">
+        <div className="space-y-3 md:space-y-4">
           {historicalAuctions.slice(0, displayCount).map((auction) => (
-            <div key={auction.auctionId.toString()} className="border border-black p-6 bg-white hover:bg-emerald-50 transition-colors">
-              <div className="grid md:grid-cols-4 gap-4 items-center">
+            <div key={auction.auctionId.toString()} className="border border-black p-3 md:p-6 bg-white hover:bg-emerald-50 transition-colors">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 items-center">
                 {/* NFT Preview */}
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 md:space-x-4 col-span-2 md:col-span-1">
                   <NFTThumbnail tokenId={auction.tokenId} />
                   <div>
-                    <div className="font-mono font-bold text-black uppercase tracking-wide">Auction #{auction.auctionId.toString()}</div>
+                    <div className="font-mono text-xs md:text-sm font-bold text-black uppercase tracking-wide">Auction #{auction.auctionId.toString()}</div>
                   </div>
                 </div>
 
                 {/* Winner */}
-                <div>
-                  <div className="font-mono text-xs text-black mb-1 uppercase tracking-wide">Winner</div>
-                  <div className="font-mono font-bold text-black">
+                <div className="col-span-1">
+                  <div className="font-mono text-[10px] md:text-xs text-black mb-1 uppercase tracking-wide">Winner</div>
+                  <div className="font-mono text-xs md:text-sm font-bold text-black">
                     {auction.highestBidder.slice(0, 6)}...{auction.highestBidder.slice(-4)}
                   </div>
                 </div>
 
                 {/* Final Bid */}
-                <div>
-                  <div className="font-mono text-xs text-black mb-1 uppercase tracking-wide">Final Bid</div>
-                  <div className="font-mono font-bold text-emerald-700">{parseFloat(formatEther(auction.highestBid)).toFixed(2)} ETH</div>
+                <div className="col-span-1">
+                  <div className="font-mono text-[10px] md:text-xs text-black mb-1 uppercase tracking-wide">Final Bid</div>
+                  <div className="font-mono text-xs md:text-sm font-bold text-emerald-700">{parseFloat(formatEther(auction.highestBid)).toFixed(2)} ETH</div>
                 </div>
 
                 {/* End Date */}
-                <div>
-                  <div className="font-mono text-xs text-black mb-1 uppercase tracking-wide">Ended</div>
-                  <div className="font-mono text-xs text-black">{formatDate(auction.endTime)}</div>
+                <div className="col-span-2 md:col-span-1">
+                  <div className="font-mono text-[10px] md:text-xs text-black mb-1 uppercase tracking-wide">Ended</div>
+                  <div className="font-mono text-[10px] md:text-xs text-black">{formatDate(auction.endTime)}</div>
                 </div>
               </div>
 
@@ -302,10 +302,10 @@ export function AuctionHistory() {
 
         {/* Load more button (if there are more auctions to show) */}
         {historicalAuctions.length > displayCount && (
-          <div className="text-center mt-6">
+          <div className="text-center mt-4 md:mt-6">
             <button
               onClick={() => setDisplayCount((prev) => prev + 3)}
-              className="bg-black text-white px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest hover:bg-emerald-700 transition-colors border border-black"
+              className="bg-black text-white px-4 md:px-6 py-2 md:py-3 font-mono text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-emerald-700 transition-colors border border-black"
             >
               Load More Auctions
             </button>

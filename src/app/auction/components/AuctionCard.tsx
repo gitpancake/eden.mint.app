@@ -150,69 +150,77 @@ export function AuctionCard() {
     return (
       <div className="max-w-4xl mx-auto">
         <div className="border border-black p-4 md:p-8 bg-white">
-          {/* Header */}
-          <div className="flex justify-between items-center mb-6 border-b border-black pb-6">
-            <div>
-              <h1 className="font-mono text-xl md:text-2xl font-bold text-black uppercase tracking-widest mb-2">Previous Auction Result</h1>
-              <div className="font-mono text-xs uppercase tracking-widest text-black">Paused: awaiting metadata for next auction</div>
+          {/* Header - Mobile optimized */}
+          <div className="mb-4 md:mb-6 border-b border-black pb-4 md:pb-6">
+            <div className="text-center md:text-left">
+              <h1 className="font-mono text-lg md:text-2xl font-bold text-black uppercase tracking-widest mb-2">Previous Auction Result</h1>
+              <div className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-black">Paused: awaiting metadata for next auction</div>
             </div>
           </div>
 
           {data?.previousAuction ? (
-            <div className="grid lg:grid-cols-2 gap-8">
-              {/* Left side - Previous NFT Preview */}
-              <div>
-                <NFTPreview tokenId={BigInt(data.previousAuction.tokenId)} />
+            <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 md:gap-8">
+              {/* NFT Preview - Mobile optimized */}
+              <div className="flex justify-center md:justify-start">
+                <div className="w-48 h-48 md:w-full md:h-auto">
+                  <NFTPreview tokenId={BigInt(data.previousAuction.tokenId)} />
+                </div>
               </div>
 
-              {/* Right side - Previous Auction Details */}
-              <div className="space-y-6">
-                <div className="border border-black p-4 md:p-6 bg-white">
-                  <h3 className="font-mono text-sm font-bold text-black uppercase tracking-widest mb-4">Auction #{data.previousAuction.auctionId}</h3>
-                  <div className="space-y-4">
+              {/* Auction Details - Mobile optimized */}
+              <div className="space-y-4 md:space-y-6">
+                <div className="border border-black p-3 md:p-6 bg-white text-center md:text-left">
+                  <h3 className="font-mono text-xs md:text-sm font-bold text-black uppercase tracking-widest mb-3 md:mb-4">Auction #{data.previousAuction.auctionId}</h3>
+                  <div className="space-y-3 md:space-y-4">
                     <div>
-                      <div className="font-mono text-2xl md:text-3xl font-bold text-black mb-2">{formatEther(BigInt(data.previousAuction.highestBid))} ETH</div>
-                      <div className="font-mono text-xs text-black">
+                      <div className="font-mono text-xl md:text-3xl font-bold text-black mb-1 md:mb-2">{formatEther(BigInt(data.previousAuction.highestBid))} ETH</div>
+                      <div className="font-mono text-[10px] md:text-xs text-black">
                         Won by {data.previousAuction.highestBidder.slice(0, 6)}...{data.previousAuction.highestBidder.slice(-4)}
                       </div>
                     </div>
-                    <div className="font-mono text-xs text-black">Token #{data.previousAuction.tokenId}</div>
+                    <div className="font-mono text-[10px] md:text-xs text-black">Token #{data.previousAuction.tokenId}</div>
                   </div>
                 </div>
 
-                <div className="border border-black p-4 md:p-6 bg-white">
-                  <h3 className="font-mono text-sm font-bold text-black uppercase tracking-widest mb-4">Next Steps</h3>
-                  <p className="font-mono text-xs text-black mb-4">Owner needs to seed metadata for the next token. Once seeded, retry settlement to resume auctions.</p>
+                <div className="border border-black p-3 md:p-6 bg-white">
+                  <h3 className="font-mono text-xs md:text-sm font-bold text-black uppercase tracking-widest mb-3 md:mb-4 text-center md:text-left">Next Steps</h3>
+                  <p className="font-mono text-[10px] md:text-xs text-black mb-4 text-center md:text-left">
+                    Owner needs to seed metadata for the next token. Once seeded, retry settlement to resume auctions.
+                  </p>
                   <button
                     onClick={async () => {
                       await writeContract({ ...AUCTION_CONTRACT_CONFIG, functionName: "settleAuction" });
                       mutate();
                     }}
                     disabled={isPending || isConfirming}
-                    className="w-full bg-black text-white px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest hover:bg-emerald-700 transition-colors border border-black"
+                    className="w-full bg-black text-white px-4 md:px-6 py-2 md:py-3 font-mono text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-emerald-700 transition-colors border border-black"
                   >
-                    Retry Settle
+                    {isPending || isConfirming ? "Processing..." : "Retry Settle"}
                   </button>
                 </div>
 
-                <OwnerControls owner={owner} />
+                <div className="hidden md:block">
+                  <OwnerControls owner={owner} />
+                </div>
               </div>
             </div>
           ) : (
             <div className="text-center space-y-4">
-              <h2 className="font-mono text-xl font-bold text-black uppercase tracking-widest">Paused: awaiting metadata</h2>
-              <p className="font-mono text-sm text-black">Owner needs to seed metadata for the next token. Once seeded, retry settlement to resume auctions.</p>
+              <h2 className="font-mono text-lg md:text-xl font-bold text-black uppercase tracking-widest">Paused: awaiting metadata</h2>
+              <p className="font-mono text-xs md:text-sm text-black">Owner needs to seed metadata for the next token. Once seeded, retry settlement to resume auctions.</p>
               <button
                 onClick={async () => {
                   await writeContract({ ...AUCTION_CONTRACT_CONFIG, functionName: "settleAuction" });
                   mutate();
                 }}
                 disabled={isPending || isConfirming}
-                className="mx-auto mt-2 bg-black text-white px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest hover:bg-emerald-700 transition-colors border border-black"
+                className="mx-auto mt-2 bg-black text-white px-4 md:px-6 py-2 md:py-3 font-mono text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-emerald-700 transition-colors border border-black"
               >
-                Retry Settle
+                {isPending || isConfirming ? "Processing..." : "Retry Settle"}
               </button>
-              <OwnerControls owner={owner} />
+              <div className="hidden md:block">
+                <OwnerControls owner={owner} />
+              </div>
             </div>
           )}
         </div>
@@ -251,59 +259,59 @@ export function AuctionCard() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="border border-black p-4 md:p-8 bg-white">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6 border-b border-black pb-6">
-          <div>
-            <h1 className="font-mono text-xl md:text-2xl font-bold text-black uppercase tracking-widest mb-2">Auction #{auction.auctionId.toString()}</h1>
-            <div
-              className={`flex items-center font-mono text-xs uppercase tracking-widest ${
-                status.color === "text-yellow-400" ? "text-black" : status.color === "text-green-400" ? "text-emerald-700" : "text-black"
-              }`}
-            >
-              {status.text}
+        {/* Header - Mobile optimized */}
+        <div className="mb-4 md:mb-6 border-b border-black pb-4 md:pb-6">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center space-y-2 md:space-y-0">
+            <div>
+              <h1 className="font-mono text-lg md:text-2xl font-bold text-black uppercase tracking-widest mb-1 md:mb-2">Auction #{auction.auctionId.toString()}</h1>
+              <div
+                className={`flex items-center font-mono text-[10px] md:text-xs uppercase tracking-widest ${
+                  status.color === "text-yellow-400" ? "text-black" : status.color === "text-green-400" ? "text-emerald-700" : "text-black"
+                }`}
+              >
+                {status.text}
+              </div>
             </div>
-          </div>
 
-          {/* Live indicator */}
-          {!auctionEnded && auctionActive && auction.highestBid > BigInt(0) && (
-            <div className="flex items-center border border-emerald-700 px-4 py-2 bg-emerald-50">
-              <div className="w-2 h-2 bg-emerald-700 rounded-full animate-pulse mr-2"></div>
-              <span className="text-emerald-700 font-mono text-xs font-bold uppercase tracking-widest">LIVE</span>
-            </div>
-          )}
+            {/* Live indicator */}
+            {!auctionEnded && auctionActive && auction.highestBid > BigInt(0) && (
+              <div className="flex items-center border border-emerald-700 px-3 md:px-4 py-1 md:py-2 bg-emerald-50 self-start md:self-auto">
+                <div className="w-2 h-2 bg-emerald-700 rounded-full animate-pulse mr-2"></div>
+                <span className="text-emerald-700 font-mono text-[10px] md:text-xs font-bold uppercase tracking-widest">LIVE</span>
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Left side - NFT Preview */}
-          <div>
-            <NFTPreview tokenId={auction.tokenId} />
+        <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 md:gap-8">
+          {/* NFT Preview - Mobile optimized */}
+          <div className="flex justify-center md:justify-start">
+            <div className="w-full max-w-sm md:max-w-none">
+              <NFTPreview tokenId={auction.tokenId} />
+            </div>
           </div>
 
-          {/* Right side - Auction Details & Bidding */}
-          <div className="space-y-6">
+          {/* Auction Details & Bidding - Mobile optimized */}
+          <div className="space-y-4 md:space-y-6">
             {/* Countdown Timer */}
-            <CountdownTimer startTime={auction.startTime} endTime={auction.endTime} auctionActive={Boolean(auctionActive)} className="border border-black p-4 md:p-6 bg-white" />
+            <CountdownTimer startTime={auction.startTime} endTime={auction.endTime} auctionActive={Boolean(auctionActive)} className="border border-black p-3 md:p-6 bg-white" />
 
             {/* Current Bid Info */}
-            <div className="border border-black p-4 md:p-6 bg-white">
-              <h3 className="font-mono text-sm font-bold text-black uppercase tracking-widest mb-4">Current Bid</h3>
+            <div className="border border-black p-3 md:p-6 bg-white">
+              <h3 className="font-mono text-xs md:text-sm font-bold text-black uppercase tracking-widest mb-3 md:mb-4">Current Bid</h3>
               {auction.highestBid > BigInt(0) ? (
                 <div>
-                  <div className="font-mono text-2xl md:text-3xl font-bold text-black mb-2">{formatEther(auction.highestBid)} ETH</div>
-                  <div className="font-mono text-xs text-black">
+                  <div className="font-mono text-xl md:text-3xl font-bold text-black mb-1 md:mb-2">{formatEther(auction.highestBid)} ETH</div>
+                  <div className="font-mono text-[10px] md:text-xs text-black">
                     by {auction.highestBidder.slice(0, 6)}...{auction.highestBidder.slice(-4)}
                     {isWinner && <span className="text-emerald-700 ml-2 font-bold">(You)</span>}
                   </div>
                 </div>
               ) : (
                 <div>
-                  <div className="font-mono text-xl md:text-2xl font-bold text-black mb-2">No bids yet</div>
-                  <div className="font-mono text-xs text-black">Be the first to bid and start the auction!</div>
+                  <div className="font-mono text-lg md:text-2xl font-bold text-black mb-1 md:mb-2">No bids yet</div>
+                  <div className="font-mono text-[10px] md:text-xs text-black">Be the first to bid!</div>
                 </div>
-              )}
-              {/* Initial highest bidder (0) notice – only after start time */}
-              {!auctionEnded && auction.highestBid === BigInt(0) && isWinner && currentTime >= auction.startTime && (
-                <div className="mt-4 p-3 border border-emerald-200 bg-emerald-50 font-mono text-xs text-emerald-700">Place a bid to set the opening price.</div>
               )}
             </div>
 
